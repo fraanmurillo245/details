@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $result = Onboarding::provision($app, $p1, $p2, $email, $hash, $slug);
+            Notifications::welcome($email, $p1 . ' & ' . $p2);
             $app->loginAs($result['id_user']);
             $app->redirect(u('dashboard'));
         }

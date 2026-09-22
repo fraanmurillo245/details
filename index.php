@@ -21,11 +21,11 @@ if ($_module === 'invite') {
     exit;
 }
 
-// El alta de cuentas también es standalone (sin el panel), pero sí sigue el
-// enrutado normal módulo/sección (index.php, return.php tras el pago).
-if ($_module === 'signup') {
-    $signup_path = __DIR__ . '/modules/signup/' . $_section . '.php';
-    include is_file($signup_path) ? $signup_path : __DIR__ . '/modules/signup/index.php';
+// Módulos standalone (sin el panel) que sí siguen el enrutado normal
+// módulo/sección: alta de cuentas y recuperación de contraseña.
+if (in_array($_module, ['signup', 'forgot'], true)) {
+    $standalone_path = __DIR__ . '/modules/' . $_module . '/' . $_section . '.php';
+    include is_file($standalone_path) ? $standalone_path : __DIR__ . '/modules/' . $_module . '/index.php';
     exit;
 }
 

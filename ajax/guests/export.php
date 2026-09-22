@@ -26,11 +26,11 @@ header('Content-Disposition: attachment; filename="invitados-' . $wedding['slug'
 
 $out = fopen('php://output', 'w');
 fwrite($out, "\xEF\xBB\xBF"); // BOM: para que Excel detecte UTF-8 y no rompa acentos
-fputcsv($out, ['nombre', 'email', 'telefono', 'grupo', 'acompanantes_max', 'confirmacion', 'acompanantes_confirmados', 'alergenos', 'notas']);
+fputcsv($out, ['nombre', 'email', 'telefono', 'grupo', 'acompanantes_max', 'confirmacion', 'acompanantes_confirmados', 'alergenos', 'notas'], ',', '"', '\\');
 foreach ($rows as $r) {
     fputcsv($out, [
         $r['name'], $r['email'], $r['phone'], $r['group_name'],
         $r['max_companions'], $r['rsvp_status'], $r['rsvp_companions'], $r['allergens'] ?? '', $r['notes'],
-    ]);
+    ], ',', '"', '\\');
 }
 fclose($out);

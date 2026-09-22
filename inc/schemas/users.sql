@@ -11,3 +11,21 @@ CREATE TABLE IF NOT EXISTS users (
     UNIQUE KEY uq_email (email),
     KEY idx_account (id_account)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Migración: recuperación de contraseña. reset_token NULL (no "") para que
+-- el UNIQUE KEY no choque entre usuarios sin token activo (MySQL permite
+-- varios NULL en una UNIQUE KEY, pero no varias cadenas vacías iguales).
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'reset_token');
+SET @s := IF(@c = 0, 'ALTER TABLE users ADD COLUMN reset_token VARCHAR(64) NULL DEFAULT NULL AFTER password', 'DO 0');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'reset_expires');
+SET @s := IF(@c = 0, 'ALTER TABLE users ADD COLUMN reset_expires TIMESTAMP NULL DEFAULT NULL AFTER reset_token', 'DO 0');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.STATISTICS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND INDEX_NAME = 'uq_reset_token');
+SET @s := IF(@c = 0, 'ALTER TABLE users ADD UNIQUE KEY uq_reset_token (reset_token)', 'DO 0');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;

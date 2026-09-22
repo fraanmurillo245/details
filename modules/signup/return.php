@@ -46,6 +46,7 @@ if ($session && ($session['payment_status'] ?? '') === 'paid') {
         $stmt->execute();
         $stmt->close();
 
+        Notifications::welcome($pending['email'], $pending['partner1_name'] . ' & ' . $pending['partner2_name']);
         $app->loginAs($result['id_user']);
         $app->redirect(u('dashboard'));
     }

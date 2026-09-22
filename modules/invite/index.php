@@ -82,6 +82,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
             }
             $stmt->close();
         }
+
+        Notifications::rsvpGuestConfirmation($wedding, $email, $name, $attending);
+        $stmt = $app->db->prepare('SELECT email FROM accounts WHERE id_account = ? LIMIT 1');
+        $stmt->bind_param('i', $wedding['id_account']);
+        $stmt->execute();
+        $ownerEmail = (string)($stmt->get_result()->fetch_assoc()['email'] ?? '');
+        $stmt->close();
+        Notifications::rsvpOwnerAlert($wedding, $ownerEmail, $wedding['partner1_name'], $name, $attending, $companions);
+
         $rsvpSent = true;
     }
 }

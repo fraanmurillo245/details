@@ -51,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="password" name="password" required class="field">
         </div>
         <button type="submit" class="btn-brand w-full justify-center py-2.5"><?= App::e(t('login_submit')) ?></button>
+        <p class="text-center text-sm"><a href="/forgot/" style="color: var(--brand-solid)"><?= App::e(t('login_forgot')) ?></a></p>
     </form>
     <p class="text-center text-sm mt-4 text-gray-500">
         <?= App::e(t('login_no_account')) ?> <a href="/signup/" style="color: var(--brand-solid)"><?= App::e(t('signup_cta')) ?></a>

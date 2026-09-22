@@ -46,12 +46,12 @@ $tablesCatalog = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim((string)$_POST['name']);
-    $email = trim((string)$_POST['email']);
-    $phone = trim((string)$_POST['phone']);
-    $group = trim((string)$_POST['group_name']);
-    $maxCompanions = (int)$_POST['max_companions'];
-    $notes = trim((string)$_POST['notes']);
+    $name = trim((string)($_POST['name'] ?? ''));
+    $email = trim((string)($_POST['email'] ?? ''));
+    $phone = trim((string)($_POST['phone'] ?? ''));
+    $group = trim((string)($_POST['group_name'] ?? ''));
+    $maxCompanions = (int)($_POST['max_companions'] ?? 0);
+    $notes = trim((string)($_POST['notes'] ?? ''));
     $idTable = (int)($_POST['id_table'] ?? 0);
     $postedAllergens = array_map('intval', $_POST['allergens'] ?? []);
 

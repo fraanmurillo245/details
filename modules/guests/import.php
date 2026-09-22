@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES['csv']['tmp_name']) 
     if ($fh === false) {
         $error = t('import_error');
     } else {
-        $header = fgetcsv($fh);
+        $header = fgetcsv($fh, 0, ',', '"', '\\');
         if ($header === false) {
             $error = t('import_empty');
         } else {
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES['csv']['tmp_name']) 
                     'INSERT INTO guests (id_wedding, name, email, phone, group_name, max_companions, notes, created_at, updated_at)
                      VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
                 );
-                while (($row = fgetcsv($fh)) !== false) {
+                while (($row = fgetcsv($fh, 0, ',', '"', '\\')) !== false) {
                     $name = trim((string)($row[$colIndex['name']] ?? ''));
                     if ($name === '') continue;
                     $email = trim((string)($row[$colIndex['email']] ?? ''));

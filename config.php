@@ -10,8 +10,9 @@ error_reporting(E_ALL);
 $_config = [
     'url'    => 'https://app.detailsinvitaciones.com',
     'secret' => 'CAMBIAR: php -r "echo bin2hex(random_bytes(32));"',
-    // Módulos accesibles sin login: la invitación pública, su RSVP y el alta de cuentas.
-    'public_modules' => ['invite', 'signup'],
+    // Módulos accesibles sin login: la invitación pública, su RSVP, el alta
+    // de cuentas y la recuperación de contraseña.
+    'public_modules' => ['invite', 'signup', 'forgot'],
     // Sugerencia de diseño por IA (fase 2): clave por variable de entorno,
     // nunca hardcodeada ni versionada.
     'anthropic_api_key' => getenv('ANTHROPIC_API_KEY') ?: '',
@@ -19,6 +20,15 @@ $_config = [
     // el alta de cuentas se hace sin cobro (útil en desarrollo).
     'stripe_secret_key' => getenv('STRIPE_SECRET_KEY') ?: '',
     'stripe_price_id'   => getenv('STRIPE_PRICE_ID') ?: '',
+    // Envío de correo. Sin smtp_host configurado, se usa mail() de PHP
+    // (requiere sendmail/postfix local en el servidor).
+    'smtp_host'      => getenv('SMTP_HOST') ?: '',
+    'smtp_port'      => (int)(getenv('SMTP_PORT') ?: 587),
+    'smtp_secure'    => getenv('SMTP_SECURE') ?: 'tls', // tls | ssl | none
+    'smtp_user'      => getenv('SMTP_USER') ?: '',
+    'smtp_pass'      => getenv('SMTP_PASS') ?: '',
+    'mail_from'      => getenv('MAIL_FROM') ?: 'no-reply@detailsinvitaciones.com',
+    'mail_from_name' => getenv('MAIL_FROM_NAME') ?: 'details',
 ];
 date_default_timezone_set('Europe/Madrid');
 mb_internal_encoding('UTF-8');
