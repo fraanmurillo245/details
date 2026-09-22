@@ -35,6 +35,7 @@ $nav = [
     'dashboard' => ['label' => t('nav_dashboard'), 'icon' => 'home'],
     'weddings'  => ['label' => t('nav_weddings'), 'icon' => 'heart'],
     'guests'    => ['label' => t('nav_guests'), 'icon' => 'users'],
+    'tables'    => ['label' => t('nav_tables'), 'icon' => 'grid'],
     'design'    => ['label' => t('nav_design'), 'icon' => 'palette'],
 ];
 ?>

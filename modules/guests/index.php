@@ -12,11 +12,12 @@ if (!$wedding) {
 $idWedding = (int)$wedding['id_wedding'];
 
 $stmt = $app->db->prepare(
-    'SELECT g.id_guest, g.name, g.email, g.phone, g.group_name, g.rsvp_status, g.rsvp_companions,
+    'SELECT g.id_guest, g.name, g.email, g.phone, g.group_name, g.rsvp_status, g.rsvp_companions, t.name AS table_name,
             GROUP_CONCAT(a.name SEPARATOR ", ") AS allergens
      FROM guests g
      LEFT JOIN guest_allergens ga ON ga.id_guest = g.id_guest
      LEFT JOIN allergens a ON a.id_allergen = ga.id_allergen
+     LEFT JOIN seating_tables t ON t.id_table = g.id_table
      WHERE g.id_wedding = ?
      GROUP BY g.id_guest
      ORDER BY g.name ASC'
@@ -35,7 +36,11 @@ $statusClass = [
 ?>
 <div class="flex items-center justify-between mb-4">
     <h1 class="heading text-2xl"><?= App::e(t('nav_guests')) ?> — <?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></h1>
-    <a href="<?= App::e(rtrim(u('guests', 'add', '0'), '/') . '/' . $idWedding . '/') ?>" class="btn-brand"><?= App::e(t('add')) ?></a>
+    <div class="flex items-center gap-2">
+        <a href="<?= App::e(u('guests', 'import', $idWedding)) ?>" class="btn"><?= App::e(t('import_csv')) ?></a>
+        <a href="<?= App::e('/ajax/guests/export.php?id_wedding=' . $idWedding) ?>" class="btn"><?= App::e(t('export_csv')) ?></a>
+        <a href="<?= App::e(rtrim(u('guests', 'add', '0'), '/') . '/' . $idWedding . '/') ?>" class="btn-brand"><?= App::e(t('add')) ?></a>
+    </div>
 </div>
 
 <div class="card overflow-x-auto">
@@ -45,6 +50,7 @@ $statusClass = [
             <th class="px-4 py-2"><?= App::e(t('name')) ?></th>
             <th class="px-4 py-2"><?= App::e(t('group')) ?></th>
             <th class="px-4 py-2"><?= App::e(t('allergens')) ?></th>
+            <th class="px-4 py-2"><?= App::e(t('table')) ?></th>
             <th class="px-4 py-2"><?= App::e(t('rsvp_status')) ?></th>
             <th class="px-4 py-2"></th>
         </tr>
@@ -52,6 +58,7 @@ $statusClass = [
             <th class="px-4 py-1"><input data-table="#tbl-guests" data-filter-col="0" oninput="filterColumn(this)" class="w-full rounded border border-gray-300 dark:border-gray-700 bg-transparent px-2 py-1 text-xs"></th>
             <th class="px-4 py-1"><input data-table="#tbl-guests" data-filter-col="1" oninput="filterColumn(this)" class="w-full rounded border border-gray-300 dark:border-gray-700 bg-transparent px-2 py-1 text-xs"></th>
             <th class="px-4 py-1"><input data-table="#tbl-guests" data-filter-col="2" oninput="filterColumn(this)" class="w-full rounded border border-gray-300 dark:border-gray-700 bg-transparent px-2 py-1 text-xs"></th>
+            <th class="px-4 py-1"></th>
             <th class="px-4 py-1"></th>
             <th class="px-4 py-1"></th>
         </tr>
@@ -62,6 +69,7 @@ $statusClass = [
             <td class="px-4 py-2"><?= App::e($r['name']) ?></td>
             <td class="px-4 py-2"><?= App::e($r['group_name']) ?></td>
             <td class="px-4 py-2 text-amber-700 dark:text-amber-400"><?= App::e($r['allergens'] ?: '-') ?></td>
+            <td class="px-4 py-2"><?= App::e($r['table_name'] ?: '-') ?></td>
             <td class="px-4 py-2">
                 <span class="rounded-full px-2 py-0.5 text-xs <?= $statusClass[$r['rsvp_status']] ?>"><?= App::e($statusLabel[$r['rsvp_status']]) ?></span>
             </td>
@@ -73,7 +81,7 @@ $statusClass = [
         </tr>
     <?php endforeach; ?>
     <?php if (!$rows): ?>
-        <tr><td colspan="5" class="px-4 py-6 text-center text-gray-500"><?= App::e(t('no_results')) ?></td></tr>
+        <tr><td colspan="6" class="px-4 py-6 text-center text-gray-500"><?= App::e(t('no_results')) ?></td></tr>
     <?php endif; ?>
     </tbody>
 </table>

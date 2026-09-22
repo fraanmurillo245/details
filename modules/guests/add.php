@@ -6,7 +6,7 @@ $idAccount = (int)$_user['id_account'];
 $idGuest = (int)$_id;
 $g = [
     'id_guest' => 0, 'id_wedding' => 0, 'name' => '', 'email' => '', 'phone' => '',
-    'group_name' => '', 'max_companions' => 0, 'notes' => '',
+    'group_name' => '', 'max_companions' => 0, 'notes' => '', 'id_table' => 0,
 ];
 $selectedAllergens = [];
 
@@ -39,6 +39,12 @@ $idWedding = (int)$wedding['id_wedding'];
 
 $allergensCatalog = $app->db->query('SELECT id_allergen, name FROM allergens ORDER BY name ASC')->fetch_all(MYSQLI_ASSOC);
 
+$stmt = $app->db->prepare('SELECT id_table, name FROM seating_tables WHERE id_wedding = ? ORDER BY name ASC');
+$stmt->bind_param('i', $idWedding);
+$stmt->execute();
+$tablesCatalog = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim((string)$_POST['name']);
     $email = trim((string)$_POST['email']);
@@ -46,22 +52,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $group = trim((string)$_POST['group_name']);
     $maxCompanions = (int)$_POST['max_companions'];
     $notes = trim((string)$_POST['notes']);
+    $idTable = (int)($_POST['id_table'] ?? 0);
     $postedAllergens = array_map('intval', $_POST['allergens'] ?? []);
 
     if ($idGuest > 0) {
         $stmt = $app->db->prepare(
-            'UPDATE guests SET name=?, email=?, phone=?, group_name=?, max_companions=?, notes=?, updated_at=NOW() WHERE id_guest=?'
+            'UPDATE guests SET name=?, email=?, phone=?, group_name=?, max_companions=?, id_table=?, notes=?, updated_at=NOW() WHERE id_guest=?'
         );
-        $stmt->bind_param('ssssisi', $name, $email, $phone, $group, $maxCompanions, $notes, $idGuest);
+        $stmt->bind_param('ssssiisi', $name, $email, $phone, $group, $maxCompanions, $idTable, $notes, $idGuest);
         $stmt->execute();
         $stmt->close();
         $app->log('guest.update', $idGuest, $idAccount);
     } else {
         $stmt = $app->db->prepare(
-            'INSERT INTO guests (id_wedding, name, email, phone, group_name, max_companions, notes, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
+            'INSERT INTO guests (id_wedding, name, email, phone, group_name, max_companions, id_table, notes, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())'
         );
-        $stmt->bind_param('issssis', $idWedding, $name, $email, $phone, $group, $maxCompanions, $notes);
+        $stmt->bind_param('issssiis', $idWedding, $name, $email, $phone, $group, $maxCompanions, $idTable, $notes);
         $stmt->execute();
         $idGuest = (int)$stmt->insert_id;
         $stmt->close();
@@ -108,9 +115,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input name="phone" value="<?= App::e($g['phone']) ?>" class="field">
         </div>
     </div>
-    <div>
-        <label class="block text-sm mb-1"><?= App::e(t('max_companions')) ?></label>
-        <input type="number" min="0" max="10" name="max_companions" value="<?= (int)$g['max_companions'] ?>" class="field">
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label class="block text-sm mb-1"><?= App::e(t('max_companions')) ?></label>
+            <input type="number" min="0" max="10" name="max_companions" value="<?= (int)$g['max_companions'] ?>" class="field">
+        </div>
+        <div>
+            <label class="block text-sm mb-1"><?= App::e(t('table')) ?></label>
+            <select name="id_table" class="field">
+                <option value="0"><?= App::e(t('table_none')) ?></option>
+                <?php foreach ($tablesCatalog as $t): ?>
+                    <option value="<?= (int)$t['id_table'] ?>" <?= (int)$g['id_table'] === (int)$t['id_table'] ? 'selected' : '' ?>><?= App::e($t['name']) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
     </div>
     <div>
         <label class="block text-sm mb-2"><?= App::e(t('allergens')) ?></label>
