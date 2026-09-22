@@ -14,15 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->close();
 
     if ($row && password_verify($pass, $row['password'])) {
-        $uid = (int)$row['id_user'];
-        $sig = hash_hmac('sha256', (string)$uid, $_config['secret']);
-        setcookie('auth', $uid . ':' . $sig, [
-            'expires' => time() + 60 * 60 * 24 * 30,
-            'path' => '/',
-            'secure' => true,
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
+        $app->loginAs((int)$row['id_user']);
         $app->redirect(u('dashboard'));
     }
     $error = t('login_error');
@@ -60,6 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <button type="submit" class="btn-brand w-full justify-center py-2.5"><?= App::e(t('login_submit')) ?></button>
     </form>
+    <p class="text-center text-sm mt-4 text-gray-500">
+        <?= App::e(t('login_no_account')) ?> <a href="/signup/" style="color: var(--brand-solid)"><?= App::e(t('signup_cta')) ?></a>
+    </p>
 </div>
 </body>
 </html>

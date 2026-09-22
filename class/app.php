@@ -36,6 +36,19 @@ class App
         exit;
     }
 
+    /** Establece la cookie de sesión firmada para el usuario indicado (login / alta tras pago). */
+    public function loginAs(int $idUser): void
+    {
+        $sig = hash_hmac('sha256', (string)$idUser, $GLOBALS['_config']['secret']);
+        setcookie('auth', $idUser . ':' . $sig, [
+            'expires' => time() + 60 * 60 * 24 * 30,
+            'path' => '/',
+            'secure' => true,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
     /** Comprueba si el usuario logueado tiene alguno de los roles indicados. */
     public function hasRole(string ...$roles): bool
     {

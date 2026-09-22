@@ -10,11 +10,15 @@ error_reporting(E_ALL);
 $_config = [
     'url'    => 'https://app.detailsinvitaciones.com',
     'secret' => 'CAMBIAR: php -r "echo bin2hex(random_bytes(32));"',
-    // Módulos accesibles sin login: la propia invitación pública y su RSVP.
-    'public_modules' => ['invite'],
+    // Módulos accesibles sin login: la invitación pública, su RSVP y el alta de cuentas.
+    'public_modules' => ['invite', 'signup'],
     // Sugerencia de diseño por IA (fase 2): clave por variable de entorno,
     // nunca hardcodeada ni versionada.
     'anthropic_api_key' => getenv('ANTHROPIC_API_KEY') ?: '',
+    // Pago único (tarifa plana) vía Stripe Checkout. Sin estas dos claves,
+    // el alta de cuentas se hace sin cobro (útil en desarrollo).
+    'stripe_secret_key' => getenv('STRIPE_SECRET_KEY') ?: '',
+    'stripe_price_id'   => getenv('STRIPE_PRICE_ID') ?: '',
 ];
 date_default_timezone_set('Europe/Madrid');
 mb_internal_encoding('UTF-8');

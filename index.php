@@ -21,6 +21,14 @@ if ($_module === 'invite') {
     exit;
 }
 
+// El alta de cuentas también es standalone (sin el panel), pero sí sigue el
+// enrutado normal módulo/sección (index.php, return.php tras el pago).
+if ($_module === 'signup') {
+    $signup_path = __DIR__ . '/modules/signup/' . $_section . '.php';
+    include is_file($signup_path) ? $signup_path : __DIR__ . '/modules/signup/index.php';
+    exit;
+}
+
 $section_path = __DIR__ . '/modules/' . $_module . '/' . $_section . '.php';
 
 $nav = [
