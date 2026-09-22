@@ -75,7 +75,8 @@ try {
     <div class="flex-1">
         <header class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-8 py-4">
             <div></div>
-            <div class="flex items-center gap-3 text-sm">
+            <div class="flex items-center gap-4 text-sm">
+                <?= App::langSwitcher() ?>
                 <span class="text-gray-500"><?= App::e($_user['email'] ?? '') ?></span>
                 <a href="/logout.php" class="btn"><?= App::e(t('logout')) ?></a>
             </div>

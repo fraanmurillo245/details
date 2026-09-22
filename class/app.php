@@ -56,6 +56,15 @@ class App
             'samesite' => 'Lax',
         ]);
 
+        $stmt = $this->db->prepare('SELECT language FROM users WHERE id_user = ? LIMIT 1');
+        $stmt->bind_param('i', $idUser);
+        $stmt->execute();
+        $lang = $stmt->get_result()->fetch_assoc()['language'] ?? '';
+        $stmt->close();
+        if ($lang !== '') {
+            setcookie('lang', $lang, ['expires' => time() + 60 * 60 * 24 * 365, 'path' => '/', 'samesite' => 'Lax']);
+        }
+
         $stmt = $this->db->prepare('UPDATE users SET last_login_at = NOW() WHERE id_user = ?');
         $stmt->bind_param('i', $idUser);
         $stmt->execute();
@@ -67,6 +76,23 @@ class App
     {
         setcookie('flash', $msg, ['expires' => time() + 30, 'path' => '/', 'samesite' => 'Lax']);
         setcookie('flash_type', $type, ['expires' => time() + 30, 'path' => '/', 'samesite' => 'Lax']);
+    }
+
+    /** Selector de idioma (ES/EN/FR/IT), enlaces por GET a setlang.php que vuelven a la página actual. Válido logueado o no. */
+    public static function langSwitcher(): string
+    {
+        $current = $GLOBALS['_lang'] ?? 'es';
+        $labels = ['es' => 'ES', 'en' => 'EN', 'fr' => 'FR', 'it' => 'IT'];
+        $redirect = urlencode($_SERVER['REQUEST_URI'] ?? '/');
+        $html = '<div class="flex items-center gap-1 text-xs font-medium">';
+        foreach ($labels as $code => $label) {
+            if ($code === $current) {
+                $html .= '<span class="px-1.5 py-0.5 rounded text-gray-400 dark:text-gray-500">' . $label . '</span>';
+            } else {
+                $html .= '<a href="/setlang.php?lang=' . $code . '&amp;redirect=' . $redirect . '" class="px-1.5 py-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">' . $label . '</a>';
+            }
+        }
+        return $html . '</div>';
     }
 
     /** Comprueba si el usuario logueado tiene alguno de los roles indicados. */

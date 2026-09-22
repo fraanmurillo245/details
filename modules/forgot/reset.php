@@ -33,7 +33,7 @@ if (!$user) {
 }
 ?>
 <!doctype html>
-<html lang="es">
+<html lang="<?= App::e($_lang) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -48,6 +48,7 @@ if (!$user) {
 <div class="w-full max-w-sm">
     <div class="text-center mb-8">
         <img src="/assets/img/logo.png" alt="<?= App::e(t('app_name')) ?>" class="h-10 mx-auto">
+        <div class="flex justify-center mt-3"><?= App::langSwitcher() ?></div>
     </div>
     <div class="card p-8 space-y-4">
         <h1 class="heading text-xl text-center mb-2"><?= App::e(t('forgot_reset_title')) ?></h1>
