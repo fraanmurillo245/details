@@ -37,3 +37,15 @@ SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS
            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'is_admin');
 SET @s := IF(@c = 0, 'ALTER TABLE users ADD COLUMN is_admin TINYINT UNSIGNED NOT NULL DEFAULT 0 AFTER rol', 'DO 0');
 PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+-- Migración: idioma preferido del panel (selector, ver ajax/setlang.php) y
+-- fecha de la última conexión, usada por _crons/send_reminders.php.
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'language');
+SET @s := IF(@c = 0, "ALTER TABLE users ADD COLUMN language VARCHAR(5) NOT NULL DEFAULT 'es' AFTER email", 'DO 0');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'last_login_at');
+SET @s := IF(@c = 0, 'ALTER TABLE users ADD COLUMN last_login_at TIMESTAMP NULL DEFAULT NULL AFTER updated_at', 'DO 0');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;

@@ -44,7 +44,7 @@ class App
         exit;
     }
 
-    /** Establece la cookie de sesión firmada para el usuario indicado (login / alta tras pago). */
+    /** Establece la cookie de sesión firmada para el usuario indicado (login / alta / tras pago) y registra la conexión. */
     public function loginAs(int $idUser): void
     {
         $sig = hash_hmac('sha256', (string)$idUser, $GLOBALS['_config']['secret']);
@@ -55,6 +55,11 @@ class App
             'httponly' => true,
             'samesite' => 'Lax',
         ]);
+
+        $stmt = $this->db->prepare('UPDATE users SET last_login_at = NOW() WHERE id_user = ?');
+        $stmt->bind_param('i', $idUser);
+        $stmt->execute();
+        $stmt->close();
     }
 
     /** Mensaje de un solo uso tras una redirección del servidor (lo recoge y muestra assets/js/app.js). */
