@@ -11,6 +11,8 @@ $stmt->bind_param('i', $idAccount);
 $stmt->execute();
 $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
+
+$needsPayment = Billing::isConfigured() && !Billing::hasPaid($app, $idAccount);
 ?>
 <div class="flex items-center justify-between mb-4">
     <h1 class="heading text-2xl"><?= App::e(t('nav_weddings')) ?></h1>
@@ -42,8 +44,16 @@ $stmt->close();
                 <span class="rounded-full px-2 py-0.5 text-xs <?= $r['status'] === 'published' ? 'bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300' ?>">
                     <?= App::e(t($r['status'])) ?>
                 </span>
+                <?php if ($r['status'] === 'published'): ?>
+                    <a href="<?= App::e($_config['url'] . '/invite/' . $r['slug'] . '/') ?>" target="_blank" class="text-xs ml-1" style="color: var(--brand-solid)"><?= App::e(t('view_invite_link')) ?></a>
+                <?php endif; ?>
             </td>
             <td class="px-4 py-2 text-right space-x-2">
+                <?php if ($r['status'] !== 'published'): ?>
+                    <a href="<?= App::e(u('weddings', 'publish', $r['id_wedding'])) ?>" class="btn-brand" data-tip="<?= App::e($needsPayment ? t('pay_and_publish') : t('publish')) ?>">
+                        <?= App::e($needsPayment ? t('pay_and_publish') : t('publish')) ?>
+                    </a>
+                <?php endif; ?>
                 <a href="<?= App::e(u('weddings', 'add', $r['id_wedding'])) ?>" class="btn" data-tip="<?= App::e(t('edit')) ?>">✎</a>
                 <button type="button" class="btn" data-tip="<?= App::e(t('delete')) ?>"
                         onclick="confirmDelete('weddings', <?= (int)$r['id_wedding'] ?>, '<?= App::e(t('confirm_delete')) ?>')">🗑</button>

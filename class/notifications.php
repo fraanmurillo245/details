@@ -36,6 +36,16 @@ class Notifications
         return Mailer::send($ownerEmail, $ownerName, 'Nueva respuesta de ' . $guestName, EmailTemplate::render('Nueva respuesta a vuestra invitación', $body));
     }
 
+    public static function publishPaymentReceived(array $wedding, string $toEmail, string $toName): bool
+    {
+        $url = rtrim($GLOBALS['_config']['url'] ?? '', '/') . '/invite/' . $wedding['slug'] . '/';
+        $body = '<p>¡Hola ' . App::e($toName) . '!</p>'
+            . '<p>Hemos recibido el pago y vuestra invitación ya está <strong>publicada</strong>. Ya podéis compartir el enlace con vuestros invitados:</p>'
+            . '<p style="font-size:14px;word-break:break-all;"><a href="' . App::e($url) . '" style="color:#7783c4;">' . App::e($url) . '</a></p>'
+            . EmailTemplate::button($url, 'Ver invitación');
+        return Mailer::send($toEmail, $toName, '¡Vuestra invitación ya está publicada!', EmailTemplate::render('Pago recibido', $body));
+    }
+
     public static function passwordReset(string $toEmail, string $toName, string $resetUrl): bool
     {
         $body = '<p>Hola ' . App::e($toName) . ',</p>'

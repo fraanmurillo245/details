@@ -49,6 +49,13 @@ class App
         ]);
     }
 
+    /** Mensaje de un solo uso tras una redirección del servidor (lo recoge y muestra assets/js/app.js). */
+    public static function flash(string $msg, string $type = 'ok'): void
+    {
+        setcookie('flash', $msg, ['expires' => time() + 30, 'path' => '/', 'samesite' => 'Lax']);
+        setcookie('flash_type', $type, ['expires' => time() + 30, 'path' => '/', 'samesite' => 'Lax']);
+    }
+
     /** Comprueba si el usuario logueado tiene alguno de los roles indicados. */
     public function hasRole(string ...$roles): bool
     {

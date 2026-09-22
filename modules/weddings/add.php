@@ -88,12 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label class="block text-sm mb-1"><?= App::e(t('venue_address')) ?></label>
         <input name="venue_address" value="<?= App::e($w['venue_address']) ?>" class="field">
     </div>
-    <div>
-        <label class="block text-sm mb-1"><?= App::e(t('status')) ?></label>
-        <select name="status" class="field">
-            <option value="draft" <?= $w['status'] === 'draft' ? 'selected' : '' ?>><?= App::e(t('draft')) ?></option>
-            <option value="published" <?= $w['status'] === 'published' ? 'selected' : '' ?>><?= App::e(t('published')) ?></option>
-        </select>
-    </div>
+    <?php if ($w['status'] === 'published'): ?>
+    <div class="rounded-md bg-green-50 text-green-700 px-3 py-2 text-sm"><?= App::e(t('wedding_already_published')) ?></div>
+    <input type="hidden" name="status" value="published">
+    <?php else: ?>
+    <input type="hidden" name="status" value="draft">
+    <p class="text-xs text-gray-400"><?= App::e(t('wedding_publish_hint')) ?></p>
+    <?php endif; ?>
     <button type="submit" class="btn-brand"><?= App::e(t('save')) ?></button>
 </form>

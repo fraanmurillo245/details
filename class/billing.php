@@ -2,28 +2,43 @@
 if (!defined('IN_APP')) { die('Acceso denegado'); }
 
 /**
- * Pago único de la tarifa plana vía Stripe Checkout. Sin SDK: llamadas
- * directas a la API REST de Stripe por cURL (mismo patrón que AiDesigner).
- * Si no hay claves configuradas, el alta se hace sin cobro (ver
- * modules/signup/index.php) — nunca falla el registro por falta de Stripe.
+ * Pago único de la tarifa plana vía Stripe Checkout, exigido al publicar
+ * una invitación (no al darse de alta). Sin SDK: llamadas directas a la
+ * API REST de Stripe por cURL (mismo patrón que AiDesigner). El importe no
+ * viene de un Price ID fijo de Stripe, sino de la tabla settings (editable
+ * desde /admin/settings/) — así "cambiar el precio" es solo editar un
+ * número en el panel, sin tocar nada en Stripe.
  */
 class Billing
 {
     public static function isConfigured(): bool
     {
-        return !empty($GLOBALS['_config']['stripe_secret_key']) && !empty($GLOBALS['_config']['stripe_price_id']);
+        return !empty($GLOBALS['_config']['stripe_secret_key']);
     }
 
-    /** Crea una Checkout Session de pago único y devuelve el array decodificado de Stripe (incluye 'url'). */
-    public static function createCheckoutSession(string $successUrl, string $cancelUrl, string $customerEmail, array $metadata): array
+    /** ¿Esta cuenta ya tiene al menos un pago completado? (la tarifa plana cubre toda la cuenta, no boda a boda). */
+    public static function hasPaid(App $app, int $idAccount): bool
+    {
+        $stmt = $app->db->prepare("SELECT 1 FROM payments WHERE id_account = ? AND status = 'paid' LIMIT 1");
+        $stmt->bind_param('i', $idAccount);
+        $stmt->execute();
+        $found = (bool)$stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $found;
+    }
+
+    /** Crea una Checkout Session de pago único (precio ad-hoc) y devuelve el array decodificado de Stripe (incluye 'url'). */
+    public static function createCheckoutSession(App $app, string $successUrl, string $cancelUrl, string $customerEmail, array $metadata): array
     {
         $fields = [
             'mode' => 'payment',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'customer_email' => $customerEmail,
-            'line_items[0][price]' => $GLOBALS['_config']['stripe_price_id'],
             'line_items[0][quantity]' => 1,
+            'line_items[0][price_data][currency]' => Settings::flatFeeCurrency($app),
+            'line_items[0][price_data][unit_amount]' => Settings::flatFeeCents($app),
+            'line_items[0][price_data][product_data][name]' => 'Invitación de boda — tarifa plana',
         ];
         foreach ($metadata as $k => $v) {
             $fields['metadata[' . $k . ']'] = $v;

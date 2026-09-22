@@ -31,6 +31,11 @@ function flashReload(msg, url) {
     window.location.href = url || window.location.href;
 }
 
+function readCookie(name) {
+    const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     try {
         const msg = sessionStorage.getItem('flash');
@@ -39,6 +44,14 @@ document.addEventListener('DOMContentLoaded', () => {
             notify(msg, 'ok');
         }
     } catch (e) {}
+
+    // Flash tras una redirección del servidor (App::flash en PHP).
+    const cookieMsg = readCookie('flash');
+    if (cookieMsg) {
+        notify(cookieMsg, readCookie('flash_type') || 'ok');
+        document.cookie = 'flash=; Max-Age=0; path=/';
+        document.cookie = 'flash_type=; Max-Age=0; path=/';
+    }
 });
 
 function filterColumn(input) {

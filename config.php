@@ -16,10 +16,11 @@ $_config = [
     // Sugerencia de diseño por IA (fase 2): clave por variable de entorno,
     // nunca hardcodeada ni versionada.
     'anthropic_api_key' => getenv('ANTHROPIC_API_KEY') ?: '',
-    // Pago único (tarifa plana) vía Stripe Checkout. Sin estas dos claves,
-    // el alta de cuentas se hace sin cobro (útil en desarrollo).
+    // Pago único (tarifa plana) vía Stripe Checkout, exigido al publicar la
+    // invitación (no al darse de alta). El importe se guarda en la tabla
+    // settings (editable desde /admin/settings/), no aquí. Sin esta clave,
+    // publicar es gratis (útil en desarrollo).
     'stripe_secret_key' => getenv('STRIPE_SECRET_KEY') ?: '',
-    'stripe_price_id'   => getenv('STRIPE_PRICE_ID') ?: '',
     // Envío de correo. Sin smtp_host configurado, se usa mail() de PHP
     // (requiere sendmail/postfix local en el servidor).
     'smtp_host'      => getenv('SMTP_HOST') ?: '',
@@ -58,7 +59,7 @@ if (!defined('NO_LOGIN') && !$_is_public_module) {
     if (!empty($_COOKIE['auth'])) {
         [$uid, $sig] = array_pad(explode(':', $_COOKIE['auth'], 2), 2, '');
         if (ctype_digit($uid) && hash_equals(hash_hmac('sha256', $uid, $_config['secret']), $sig)) {
-            $stmt = $mysqli->prepare('SELECT id_user, id_account, email, rol FROM users WHERE id_user = ? AND active = 1 LIMIT 1');
+            $stmt = $mysqli->prepare('SELECT id_user, id_account, email, rol, is_admin FROM users WHERE id_user = ? AND active = 1 LIMIT 1');
             $stmt->bind_param('i', $uid);
             $stmt->execute();
             $_user = $stmt->get_result()->fetch_assoc() ?: null;

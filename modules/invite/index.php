@@ -7,17 +7,39 @@ $slug = $_section; // en /invite/<slug>/, $_section transporta el slug de la bod
 $stmt = $app->db->prepare(
     "SELECT w.*, p.blocks_json, p.theme_json, p.gift_message FROM weddings w
      LEFT JOIN wedding_pages p ON p.id_wedding = w.id_wedding
-     WHERE w.slug = ? AND w.status = 'published' LIMIT 1"
+     WHERE w.slug = ? LIMIT 1"
 );
 $stmt->bind_param('s', $slug);
 $stmt->execute();
 $wedding = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
+$isPreview = false;
+if ($wedding && $wedding['status'] !== 'published') {
+    // Solo el dueño logueado puede ver el borrador (previsualización antes
+    // de pagar); para cualquier otra visita, una boda no publicada no existe.
+    $isPreview = invite_owner_is_viewing((int)$wedding['id_account'], $_config['secret'], $app->db);
+    if (!$isPreview) $wedding = null;
+}
+
 if (!$wedding) {
     http_response_code(404);
     echo '<!doctype html><html><body><p>Invitación no encontrada.</p></body></html>';
     return;
+}
+
+/** Comprueba, vía la cookie de sesión, si quien visita es el dueño de la cuenta (para previsualizar un borrador). */
+function invite_owner_is_viewing(int $idAccount, string $secret, mysqli $db): bool
+{
+    if (empty($_COOKIE['auth'])) return false;
+    [$uid, $sig] = array_pad(explode(':', $_COOKIE['auth'], 2), 2, '');
+    if (!ctype_digit($uid) || !hash_equals(hash_hmac('sha256', $uid, $secret), $sig)) return false;
+    $stmt = $db->prepare('SELECT id_account FROM users WHERE id_user = ? AND active = 1 LIMIT 1');
+    $stmt->bind_param('i', $uid);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $row && (int)$row['id_account'] === $idAccount;
 }
 
 $idWedding = (int)$wedding['id_wedding'];
@@ -138,6 +160,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 </style>
 </head>
 <body>
+
+<?php if ($isPreview): ?>
+<div style="position:sticky;top:0;z-index:50;background:#1f2937;color:#fff;text-align:center;padding:8px 16px;font-size:13px;">
+    <?= App::e(t('invite_preview_banner')) ?> — <a href="<?= App::e(u('weddings')) ?>" style="color:#a5b4fc;text-decoration:underline;"><?= App::e(t('invite_preview_publish_link')) ?></a>
+</div>
+<?php endif; ?>
 
 <?php if (in_array('cover', $blocks, true)): ?>
 <section class="hero <?= $coverPhoto ? 'hero-photo' : 'hero-plain' ?>"

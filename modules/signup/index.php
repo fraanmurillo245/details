@@ -32,30 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = t('signup_email_taken');
         } elseif ($slugTaken) {
             $error = t('signup_slug_taken');
-        } elseif (Billing::isConfigured()) {
-            $token = bin2hex(random_bytes(24));
-            $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $app->db->prepare(
-                'INSERT INTO pending_signups (token, partner1_name, partner2_name, email, password_hash, wedding_slug, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, NOW())'
-            );
-            $stmt->bind_param('ssssss', $token, $p1, $p2, $email, $hash, $slug);
-            $stmt->execute();
-            $stmt->close();
-
-            try {
-                $session = Billing::createCheckoutSession(
-                    u('signup', 'return') . '?session_id={CHECKOUT_SESSION_ID}',
-                    u('signup'),
-                    $email,
-                    ['pending_token' => $token]
-                );
-                $app->redirect($session['url']);
-            } catch (RuntimeException $e) {
-                error_log('Billing: ' . $e->getMessage());
-                $error = t('signup_payment_error');
-            }
         } else {
+            // El alta es siempre gratuita: la tarifa plana se cobra al publicar
+            // la invitación (ver modules/weddings/publish.php), no aquí.
             $hash = password_hash($password, PASSWORD_DEFAULT);
             $result = Onboarding::provision($app, $p1, $p2, $email, $hash, $slug);
             Notifications::welcome($email, $p1 . ' & ' . $p2);
@@ -90,9 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($error): ?>
         <div class="rounded-md bg-red-50 text-red-700 px-3 py-2 text-sm"><?= App::e($error) ?></div>
         <?php endif; ?>
-        <?php if (!Billing::isConfigured()): ?>
-        <div class="rounded-md bg-amber-50 text-amber-700 px-3 py-2 text-xs"><?= App::e(t('signup_no_billing_notice')) ?></div>
-        <?php endif; ?>
         <div class="grid grid-cols-2 gap-3">
             <div>
                 <label class="block text-sm mb-1"><?= App::e(t('partner1_name')) ?></label>
@@ -116,9 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input name="slug" required pattern="[A-Za-z0-9][A-Za-z0-9._-]*" value="<?= App::e($old['slug']) ?>" placeholder="ana-y-juan" class="field">
             <p class="text-xs text-gray-400 mt-1"><?= App::e(t('signup_slug_hint')) ?></p>
         </div>
-        <button type="submit" class="btn-brand w-full justify-center py-2.5">
-            <?= App::e(Billing::isConfigured() ? t('signup_submit_pay') : t('signup_submit_free')) ?>
-        </button>
+        <button type="submit" class="btn-brand w-full justify-center py-2.5"><?= App::e(t('signup_submit_free')) ?></button>
     </form>
     <p class="text-center text-sm mt-4 text-gray-500">
         <?= App::e(t('signup_have_account')) ?> <a href="/login.php" style="color: var(--brand-solid)"><?= App::e(t('login_submit')) ?></a>
