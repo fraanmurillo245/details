@@ -12,6 +12,9 @@ $_config = [
     'secret' => 'CAMBIAR: php -r "echo bin2hex(random_bytes(32));"',
     // Módulos accesibles sin login: la propia invitación pública y su RSVP.
     'public_modules' => ['invite'],
+    // Sugerencia de diseño por IA (fase 2): clave por variable de entorno,
+    // nunca hardcodeada ni versionada.
+    'anthropic_api_key' => getenv('ANTHROPIC_API_KEY') ?: '',
 ];
 date_default_timezone_set('Europe/Madrid');
 mb_internal_encoding('UTF-8');

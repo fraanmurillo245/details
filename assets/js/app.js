@@ -1,3 +1,9 @@
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+}
+
 async function api(path, data) {
     const res = await fetch('/ajax/' + path + '.php', {
         method: 'POST',

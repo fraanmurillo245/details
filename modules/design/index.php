@@ -34,6 +34,27 @@ $availableBlocks = [
 ];
 $activeBlocks = json_decode($page['blocks_json'], true) ?: [];
 $theme = json_decode($page['theme_json'], true) ?: [];
+$suggestion = json_decode($page['design_suggestion'] ?? '', true) ?: null;
+
+function render_ai_suggestion(array $s, array $availableBlocks, int $idWedding): string
+{
+    $blockLabels = array_map(fn($k) => $availableBlocks[$k] ?? $k, $s['blocks'] ?? []);
+    $html = '<p class="font-medium">' . App::e(t('ai_blocks_label')) . ' ' . App::e(implode(', ', $blockLabels)) . '</p>';
+    $html .= '<div class="flex items-center gap-2">';
+    $html .= '<span class="inline-block h-5 w-5 rounded-full border" style="background:' . App::e($s['theme']['color_primary'] ?? '') . '"></span>';
+    $html .= '<span class="inline-block h-5 w-5 rounded-full border" style="background:' . App::e($s['theme']['color_secondary'] ?? '') . '"></span>';
+    $html .= '<span>' . App::e(t('font')) . ': ' . App::e($s['theme']['font'] ?? '') . '</span>';
+    $html .= '</div>';
+    if (!empty($s['rationale'])) $html .= '<p class="italic opacity-80">' . App::e($s['rationale']) . '</p>';
+    $html .= '<button type="button" class="btn" onclick="applySuggestion(' . $idWedding . ')">' . App::e(t('ai_apply')) . '</button>';
+    return $html;
+}
+
+$stmt = $app->db->prepare('SELECT id_photo, filename, original_name FROM wedding_photos WHERE id_wedding = ? ORDER BY sort_order ASC, id_photo ASC');
+$stmt->bind_param('i', $idWedding);
+$stmt->execute();
+$photos = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $blocks = array_values(array_intersect(array_map('strval', $_POST['blocks'] ?? []), array_keys($availableBlocks)));
@@ -54,6 +75,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <h1 class="text-lg font-semibold mb-4"><?= App::e(t('nav_design')) ?> — <?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></h1>
+
+<div class="max-w-2xl rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-4 mb-6">
+    <label class="block text-sm font-medium"><?= App::e(t('photos')) ?></label>
+    <div id="photo-grid" class="grid grid-cols-4 gap-3">
+        <?php foreach ($photos as $p): ?>
+        <div class="relative group" data-photo-id="<?= (int)$p['id_photo'] ?>">
+            <img src="<?= App::e(Photo::url($idWedding, $p['filename'])) ?>" class="h-24 w-full object-cover rounded-md border border-gray-200 dark:border-gray-800">
+            <button type="button" class="absolute top-1 right-1 rounded-full bg-black/60 text-white text-xs w-5 h-5 leading-5 text-center"
+                    onclick="deletePhoto(<?= (int)$p['id_photo'] ?>)">✕</button>
+        </div>
+        <?php endforeach; ?>
+    </div>
+    <div>
+        <input type="file" id="photo-input" accept="image/jpeg,image/png,image/webp" multiple class="text-sm">
+        <p class="text-xs opacity-60 mt-1"><?= App::e(t('photos_hint')) ?></p>
+    </div>
+</div>
+
+<div class="max-w-2xl rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-4 mb-6">
+    <label class="block text-sm font-medium"><?= App::e(t('ai_design_title')) ?></label>
+    <p class="text-sm opacity-70"><?= App::e(t('ai_design_hint')) ?></p>
+
+    <?php if (!AiDesigner::isConfigured()): ?>
+        <p class="text-sm rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-3 py-2"><?= App::e(t('ai_not_configured')) ?></p>
+    <?php else: ?>
+        <textarea id="ai-style-notes" rows="2" placeholder="<?= App::e(t('ai_style_placeholder')) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm"></textarea>
+        <button type="button" id="ai-generate-btn" class="btn" onclick="generateSuggestion(<?= (int)$idWedding ?>)"><?= App::e(t('ai_generate')) ?></button>
+
+        <div id="ai-suggestion-box" class="<?= $suggestion ? '' : 'hidden' ?> rounded-md border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/40 p-4 space-y-2 text-sm">
+            <div id="ai-suggestion-content"><?= $suggestion ? render_ai_suggestion($suggestion, $availableBlocks, $idWedding) : '' ?></div>
+        </div>
+    <?php endif; ?>
+</div>
 
 <form method="post" class="max-w-2xl rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-6">
     <div>
@@ -90,3 +144,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="<?= App::e($_config['url'] . '/invite/' . $wedding['slug'] . '/') ?>" target="_blank" class="btn"><?= App::e(t('preview')) ?></a>
     </div>
 </form>
+
+<script>
+const AI_BLOCK_LABELS = <?= json_encode($availableBlocks, JSON_UNESCAPED_UNICODE) ?>;
+const AI_TEXT = {
+    blocksLabel: <?= json_encode(t('ai_blocks_label')) ?>,
+    font: <?= json_encode(t('font')) ?>,
+    apply: <?= json_encode(t('ai_apply')) ?>,
+    generate: <?= json_encode(t('ai_generate')) ?>,
+    saved: <?= json_encode(t('save')) ?>,
+};
+const AI_ID_WEDDING = <?= (int)$idWedding ?>;
+const ERROR_MESSAGES = {
+    upload_error: <?= json_encode(t('err_upload_error')) ?>,
+    too_large: <?= json_encode(t('err_too_large')) ?>,
+    invalid_type: <?= json_encode(t('err_invalid_type')) ?>,
+    limit_reached: <?= json_encode(t('err_limit_reached')) ?>,
+    storage_error: <?= json_encode(t('err_storage_error')) ?>,
+    ai_not_configured: <?= json_encode(t('err_ai_not_configured')) ?>,
+    ai_failed: <?= json_encode(t('err_ai_failed')) ?>,
+    no_suggestion: <?= json_encode(t('err_no_suggestion')) ?>,
+    not_found: <?= json_encode(t('err_not_found')) ?>,
+};
+function errMsg(code) { return ERROR_MESSAGES[code] || code || 'Error'; }
+
+async function uploadPhoto(idWedding, file) {
+    const fd = new FormData();
+    fd.append('photo', file);
+    fd.append('id_wedding', idWedding);
+    const res = await fetch('/ajax/design/upload_photo.php', { method: 'POST', body: fd });
+    const data = await res.json();
+    if (!data.ok) { notify(errMsg(data.error), 'err'); return; }
+    const grid = document.getElementById('photo-grid');
+    const div = document.createElement('div');
+    div.className = 'relative group';
+    div.dataset.photoId = data.photo.id;
+    div.innerHTML = '<img src="' + data.photo.url + '" class="h-24 w-full object-cover rounded-md border border-gray-200 dark:border-gray-800">'
+        + '<button type="button" class="absolute top-1 right-1 rounded-full bg-black/60 text-white text-xs w-5 h-5 leading-5 text-center" onclick="deletePhoto(' + data.photo.id + ')">✕</button>';
+    grid.appendChild(div);
+}
+
+async function deletePhoto(id) {
+    const res = await api('design/delete_photo', { id });
+    if (res.ok) {
+        document.querySelector('[data-photo-id="' + id + '"]')?.remove();
+    } else {
+        notify(errMsg(res.error), 'err');
+    }
+}
+
+function renderSuggestion(s) {
+    const blockLabels = (s.blocks || []).map((k) => AI_BLOCK_LABELS[k] || k).join(', ');
+    let html = '<p class="font-medium">' + escapeHtml(AI_TEXT.blocksLabel) + ' ' + escapeHtml(blockLabels) + '</p>';
+    html += '<div class="flex items-center gap-2">'
+        + '<span class="inline-block h-5 w-5 rounded-full border" style="background:' + escapeHtml(s.theme.color_primary) + '"></span>'
+        + '<span class="inline-block h-5 w-5 rounded-full border" style="background:' + escapeHtml(s.theme.color_secondary) + '"></span>'
+        + '<span>' + escapeHtml(AI_TEXT.font) + ': ' + escapeHtml(s.theme.font) + '</span></div>';
+    if (s.rationale) html += '<p class="italic opacity-80">' + escapeHtml(s.rationale) + '</p>';
+    html += '<button type="button" class="btn" onclick="applySuggestion(' + AI_ID_WEDDING + ')">' + escapeHtml(AI_TEXT.apply) + '</button>';
+    return html;
+}
+
+async function generateSuggestion(idWedding) {
+    const btn = document.getElementById('ai-generate-btn');
+    const notes = document.getElementById('ai-style-notes').value;
+    btn.disabled = true;
+    btn.textContent = '...';
+    const res = await api('design/suggest', { id_wedding: idWedding, style_notes: notes });
+    btn.disabled = false;
+    btn.textContent = AI_TEXT.generate;
+    if (!res.ok) { notify(errMsg(res.error), 'err'); return; }
+    document.getElementById('ai-suggestion-content').innerHTML = renderSuggestion(res.suggestion);
+    document.getElementById('ai-suggestion-box').classList.remove('hidden');
+}
+
+async function applySuggestion(idWedding) {
+    const res = await api('design/apply_suggestion', { id_wedding: idWedding });
+    if (res.ok) {
+        flashReload(AI_TEXT.saved);
+    } else {
+        notify(errMsg(res.error), 'err');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('photo-input');
+    if (input) {
+        input.addEventListener('change', () => {
+            Array.from(input.files).forEach((file) => uploadPhoto(AI_ID_WEDDING, file));
+            input.value = '';
+        });
+    }
+});
+</script>

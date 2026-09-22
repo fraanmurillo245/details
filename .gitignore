@@ -3,3 +3,5 @@ assets/css/style.css
 error_log
 deploy.config.ps1
 .DS_Store
+uploads/weddings/*
+!uploads/.gitkeep
