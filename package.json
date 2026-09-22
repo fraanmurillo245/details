@@ -1,0 +1,12 @@
+{
+  "name": "wedding-invitations-panel",
+  "private": true,
+  "scripts": {
+    "css": "tailwindcss -i ./assets/css/input.css -o ./assets/css/style.css --minify",
+    "css:watch": "tailwindcss -i ./assets/css/input.css -o ./assets/css/style.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "tailwindcss": "^4.0.0"
+  }
+}

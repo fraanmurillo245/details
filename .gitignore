@@ -1,0 +1,5 @@
+node_modules/
+assets/css/style.css
+error_log
+deploy.config.ps1
+.DS_Store

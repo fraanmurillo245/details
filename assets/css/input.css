@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@source "../../**/*.php";
+@source "../js/app.js";
+
+.btn {
+    @apply inline-flex items-center gap-1 rounded-md border border-gray-300 dark:border-gray-700
+           bg-white dark:bg-gray-900 px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-800
+           transition-colors;
+}
+
+[data-tip] {
+    position: relative;
+}
+[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    background: rgb(17 24 39);
+    color: white;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    margin-bottom: 4px;
+}
+[data-tip]:hover::after {
+    opacity: 1;
+}
