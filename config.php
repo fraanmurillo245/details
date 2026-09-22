@@ -8,7 +8,7 @@ ini_set('error_log', __DIR__ . '/error_log');
 error_reporting(E_ALL);
 
 $_config = [
-    'url'    => 'https://midominio.com',
+    'url'    => 'https://app.detailsinvitaciones.com',
     'secret' => 'CAMBIAR: php -r "echo bin2hex(random_bytes(32));"',
     // Módulos accesibles sin login: la propia invitación pública y su RSVP.
     'public_modules' => ['invite'],

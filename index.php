@@ -36,6 +36,9 @@ $nav = [
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= App::e(t('app_name')) ?></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script>
 try {
     if (document.cookie.includes('theme=dark')) document.documentElement.classList.add('dark');
@@ -43,28 +46,29 @@ try {
 </script>
 <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body class="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
+<body class="bg-[#fbfbfd] text-gray-900 dark:bg-gray-950 dark:text-gray-100">
 <div class="flex min-h-screen">
-    <aside class="w-56 shrink-0 border-r border-gray-200 dark:border-gray-800 p-4">
-        <div class="font-semibold mb-6"><?= App::e(t('app_name')) ?></div>
+    <aside class="w-60 shrink-0 border-r border-gray-100 dark:border-gray-800 bg-white/70 dark:bg-gray-900/40 p-5">
+        <a href="<?= App::e(u('dashboard')) ?>" class="block mb-8">
+            <img src="/assets/img/logo.png" alt="<?= App::e(t('app_name')) ?>" class="h-8 w-auto">
+        </a>
         <nav class="space-y-1">
             <?php foreach ($nav as $mod => $item): ?>
-            <a href="<?= App::e(u($mod)) ?>"
-               class="block rounded-md px-3 py-2 text-sm <?= $_module === $mod ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : 'hover:bg-gray-100 dark:hover:bg-gray-900' ?>">
+            <a href="<?= App::e(u($mod)) ?>" class="nav-link <?= $_module === $mod ? 'active' : '' ?>">
                 <?= App::e($item['label']) ?>
             </a>
             <?php endforeach; ?>
         </nav>
     </aside>
     <div class="flex-1">
-        <header class="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 px-6 py-3">
+        <header class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-8 py-4">
             <div></div>
             <div class="flex items-center gap-3 text-sm">
-                <span><?= App::e($_user['email'] ?? '') ?></span>
+                <span class="text-gray-500"><?= App::e($_user['email'] ?? '') ?></span>
                 <a href="/logout.php" class="btn"><?= App::e(t('logout')) ?></a>
             </div>
         </header>
-        <main class="p-6">
+        <main class="p-8">
             <?php is_file($section_path) ? include $section_path : print '<p>404</p>'; ?>
         </main>
     </div>

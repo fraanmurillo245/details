@@ -85,32 +85,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $app->redirect(u('guests', 'index', $idWedding));
 }
 ?>
-<h1 class="text-lg font-semibold mb-4"><?= App::e($idGuest ? t('edit') : t('add')) ?></h1>
+<h1 class="heading text-2xl mb-4"><?= App::e($idGuest ? t('edit') : t('add')) ?></h1>
 
-<form method="post" class="max-w-2xl rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-4">
+<form method="post" class="max-w-2xl card p-6 space-y-4">
     <div class="grid grid-cols-2 gap-4">
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('name')) ?></label>
-            <input name="name" required value="<?= App::e($g['name']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+            <input name="name" required value="<?= App::e($g['name']) ?>" class="field">
         </div>
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('group')) ?></label>
-            <input name="group_name" value="<?= App::e($g['group_name']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+            <input name="group_name" value="<?= App::e($g['group_name']) ?>" class="field">
         </div>
     </div>
     <div class="grid grid-cols-2 gap-4">
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('email')) ?></label>
-            <input type="email" name="email" value="<?= App::e($g['email']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+            <input type="email" name="email" value="<?= App::e($g['email']) ?>" class="field">
         </div>
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('phone')) ?></label>
-            <input name="phone" value="<?= App::e($g['phone']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+            <input name="phone" value="<?= App::e($g['phone']) ?>" class="field">
         </div>
     </div>
     <div>
         <label class="block text-sm mb-1"><?= App::e(t('max_companions')) ?></label>
-        <input type="number" min="0" max="10" name="max_companions" value="<?= (int)$g['max_companions'] ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+        <input type="number" min="0" max="10" name="max_companions" value="<?= (int)$g['max_companions'] ?>" class="field">
     </div>
     <div>
         <label class="block text-sm mb-2"><?= App::e(t('allergens')) ?></label>
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div>
         <label class="block text-sm mb-1"><?= App::e(t('notes')) ?></label>
-        <textarea name="notes" rows="3" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2"><?= App::e($g['notes']) ?></textarea>
+        <textarea name="notes" rows="3" class="field"><?= App::e($g['notes']) ?></textarea>
     </div>
-    <button type="submit" class="btn"><?= App::e(t('save')) ?></button>
+    <button type="submit" class="btn-brand"><?= App::e(t('save')) ?></button>
 </form>

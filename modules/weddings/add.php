@@ -57,43 +57,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $app->redirect(u('weddings'));
 }
 ?>
-<h1 class="text-lg font-semibold mb-4"><?= App::e($id ? t('edit') : t('add')) ?></h1>
+<h1 class="heading text-2xl mb-4"><?= App::e($id ? t('edit') : t('add')) ?></h1>
 
-<form method="post" class="max-w-2xl rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-4">
+<form method="post" class="max-w-2xl card p-6 space-y-4">
     <div class="grid grid-cols-2 gap-4">
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('partner1_name')) ?></label>
-            <input name="partner1_name" required value="<?= App::e($w['partner1_name']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+            <input name="partner1_name" required value="<?= App::e($w['partner1_name']) ?>" class="field">
         </div>
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('partner2_name')) ?></label>
-            <input name="partner2_name" required value="<?= App::e($w['partner2_name']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+            <input name="partner2_name" required value="<?= App::e($w['partner2_name']) ?>" class="field">
         </div>
     </div>
     <div class="grid grid-cols-2 gap-4">
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('slug')) ?></label>
-            <input name="slug" required pattern="[A-Za-z0-9][A-Za-z0-9._-]*" value="<?= App::e($w['slug']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+            <input name="slug" required pattern="[A-Za-z0-9][A-Za-z0-9._-]*" value="<?= App::e($w['slug']) ?>" class="field">
         </div>
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('event_date')) ?></label>
-            <input type="datetime-local" name="event_date" value="<?= App::e($w['event_date'] ? date('Y-m-d\TH:i', strtotime($w['event_date'])) : '') ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+            <input type="datetime-local" name="event_date" value="<?= App::e($w['event_date'] ? date('Y-m-d\TH:i', strtotime($w['event_date'])) : '') ?>" class="field">
         </div>
     </div>
     <div>
         <label class="block text-sm mb-1"><?= App::e(t('venue_name')) ?></label>
-        <input name="venue_name" value="<?= App::e($w['venue_name']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+        <input name="venue_name" value="<?= App::e($w['venue_name']) ?>" class="field">
     </div>
     <div>
         <label class="block text-sm mb-1"><?= App::e(t('venue_address')) ?></label>
-        <input name="venue_address" value="<?= App::e($w['venue_address']) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+        <input name="venue_address" value="<?= App::e($w['venue_address']) ?>" class="field">
     </div>
     <div>
         <label class="block text-sm mb-1"><?= App::e(t('status')) ?></label>
-        <select name="status" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+        <select name="status" class="field">
             <option value="draft" <?= $w['status'] === 'draft' ? 'selected' : '' ?>><?= App::e(t('draft')) ?></option>
             <option value="published" <?= $w['status'] === 'published' ? 'selected' : '' ?>><?= App::e(t('published')) ?></option>
         </select>
     </div>
-    <button type="submit" class="btn"><?= App::e(t('save')) ?></button>
+    <button type="submit" class="btn-brand"><?= App::e(t('save')) ?></button>
 </form>

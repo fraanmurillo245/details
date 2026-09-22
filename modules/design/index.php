@@ -6,7 +6,7 @@ $idAccount = (int)$_user['id_account'];
 $wedding = Wedding::currentFor($app, $idAccount, (int)$_id);
 
 if (!$wedding) {
-    echo '<p>' . App::e(t('no_wedding_yet')) . ' <a class="btn" href="' . App::e(u('weddings', 'add')) . '">' . App::e(t('add')) . '</a></p>';
+    echo '<p>' . App::e(t('no_wedding_yet')) . ' <a class="btn-brand" href="' . App::e(u('weddings', 'add')) . '">' . App::e(t('add')) . '</a></p>';
     return;
 }
 $idWedding = (int)$wedding['id_wedding'];
@@ -76,9 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $page['gift_message'] = $giftMessage;
 }
 ?>
-<h1 class="text-lg font-semibold mb-4"><?= App::e(t('nav_design')) ?> — <?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></h1>
+<h1 class="heading text-2xl mb-4"><?= App::e(t('nav_design')) ?> — <?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></h1>
 
-<div class="max-w-2xl rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-4 mb-6">
+<div class="max-w-2xl card p-6 space-y-4 mb-6">
     <label class="block text-sm font-medium"><?= App::e(t('photos')) ?></label>
     <div id="photo-grid" class="grid grid-cols-4 gap-3">
         <?php foreach ($photos as $p): ?>
@@ -95,14 +95,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<div class="max-w-2xl rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-4 mb-6">
+<div class="max-w-2xl card p-6 space-y-4 mb-6">
     <label class="block text-sm font-medium"><?= App::e(t('ai_design_title')) ?></label>
     <p class="text-sm opacity-70"><?= App::e(t('ai_design_hint')) ?></p>
 
     <?php if (!AiDesigner::isConfigured()): ?>
         <p class="text-sm rounded-md bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-3 py-2"><?= App::e(t('ai_not_configured')) ?></p>
     <?php else: ?>
-        <textarea id="ai-style-notes" rows="2" placeholder="<?= App::e(t('ai_style_placeholder')) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm"></textarea>
+        <textarea id="ai-style-notes" rows="2" placeholder="<?= App::e(t('ai_style_placeholder')) ?>" class="field text-sm"></textarea>
         <button type="button" id="ai-generate-btn" class="btn" onclick="generateSuggestion(<?= (int)$idWedding ?>)"><?= App::e(t('ai_generate')) ?></button>
 
         <div id="ai-suggestion-box" class="<?= $suggestion ? '' : 'hidden' ?> rounded-md border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/40 p-4 space-y-2 text-sm">
@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 </div>
 
-<form method="post" class="max-w-2xl rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 space-y-6">
+<form method="post" class="max-w-2xl card p-6 space-y-6">
     <div>
         <label class="block text-sm mb-2 font-medium"><?= App::e(t('blocks')) ?></label>
         <div class="space-y-2">
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div>
         <label class="block text-sm mb-1"><?= App::e(t('gift_message')) ?></label>
-        <textarea name="gift_message" rows="3" placeholder="<?= App::e(t('gift_message_hint')) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm"><?= App::e($page['gift_message'] ?? '') ?></textarea>
+        <textarea name="gift_message" rows="3" placeholder="<?= App::e(t('gift_message_hint')) ?>" class="field text-sm"><?= App::e($page['gift_message'] ?? '') ?></textarea>
     </div>
     <div class="grid grid-cols-2 gap-4">
         <div>
@@ -139,14 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div>
         <label class="block text-sm mb-1"><?= App::e(t('font')) ?></label>
-        <select name="font" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2">
+        <select name="font" class="field">
             <?php foreach (['serif' => t('font_serif'), 'sans' => t('font_sans'), 'script' => t('font_script')] as $key => $label): ?>
                 <option value="<?= App::e($key) ?>" <?= ($theme['font'] ?? 'serif') === $key ? 'selected' : '' ?>><?= App::e($label) ?></option>
             <?php endforeach; ?>
         </select>
     </div>
     <div class="flex items-center gap-3">
-        <button type="submit" class="btn"><?= App::e(t('save')) ?></button>
+        <button type="submit" class="btn-brand"><?= App::e(t('save')) ?></button>
         <a href="<?= App::e($_config['url'] . '/invite/' . $wedding['slug'] . '/') ?>" target="_blank" class="btn"><?= App::e(t('preview')) ?></a>
     </div>
 </form>

@@ -6,7 +6,7 @@ $idAccount = (int)$_user['id_account'];
 $wedding = Wedding::currentFor($app, $idAccount, (int)$_id);
 
 if (!$wedding) {
-    echo '<p>' . App::e(t('no_wedding_yet')) . ' <a class="btn" href="' . App::e(u('weddings', 'add')) . '">' . App::e(t('add')) . '</a></p>';
+    echo '<p>' . App::e(t('no_wedding_yet')) . ' <a class="btn-brand" href="' . App::e(u('weddings', 'add')) . '">' . App::e(t('add')) . '</a></p>';
     return;
 }
 $idWedding = (int)$wedding['id_wedding'];
@@ -34,11 +34,11 @@ $statusClass = [
 ];
 ?>
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-lg font-semibold"><?= App::e(t('nav_guests')) ?> — <?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></h1>
-    <a href="<?= App::e(rtrim(u('guests', 'add', '0'), '/') . '/' . $idWedding . '/') ?>" class="btn"><?= App::e(t('add')) ?></a>
+    <h1 class="heading text-2xl"><?= App::e(t('nav_guests')) ?> — <?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></h1>
+    <a href="<?= App::e(rtrim(u('guests', 'add', '0'), '/') . '/' . $idWedding . '/') ?>" class="btn-brand"><?= App::e(t('add')) ?></a>
 </div>
 
-<div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-x-auto">
+<div class="card overflow-x-auto">
 <table class="w-full text-sm" id="tbl-guests">
     <thead>
         <tr class="border-b border-gray-200 dark:border-gray-800 text-left">

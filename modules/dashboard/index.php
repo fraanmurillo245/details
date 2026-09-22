@@ -20,29 +20,29 @@ if ($wedding) {
     $stmt->close();
 }
 ?>
-<h1 class="text-lg font-semibold mb-4"><?= App::e(t('nav_dashboard')) ?></h1>
+<h1 class="heading text-2xl mb-4"><?= App::e(t('nav_dashboard')) ?></h1>
 
 <?php if (!$wedding): ?>
-<div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+<div class="card p-6">
     <p class="mb-3"><?= App::e(t('no_wedding_yet')) ?></p>
-    <a href="<?= App::e(u('weddings', 'add')) ?>" class="btn"><?= App::e(t('add')) ?></a>
+    <a href="<?= App::e(u('weddings', 'add')) ?>" class="btn-brand"><?= App::e(t('add')) ?></a>
 </div>
 <?php else: ?>
 <div class="mb-4 text-sm opacity-70"><?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></div>
 <div class="grid grid-cols-4 gap-4">
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+    <div class="card p-4">
         <div class="text-2xl font-semibold"><?= (int)$stats['guests'] ?></div>
         <div class="text-sm opacity-70"><?= App::e(t('nav_guests')) ?></div>
     </div>
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+    <div class="card p-4">
         <div class="text-2xl font-semibold text-green-600"><?= (int)$stats['confirmed'] ?></div>
         <div class="text-sm opacity-70"><?= App::e(t('rsvp_confirmed')) ?></div>
     </div>
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+    <div class="card p-4">
         <div class="text-2xl font-semibold text-red-600"><?= (int)$stats['declined'] ?></div>
         <div class="text-sm opacity-70"><?= App::e(t('rsvp_declined')) ?></div>
     </div>
-    <div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4">
+    <div class="card p-4">
         <div class="text-2xl font-semibold text-gray-500"><?= (int)$stats['pending'] ?></div>
         <div class="text-sm opacity-70"><?= App::e(t('rsvp_pending')) ?></div>
     </div>

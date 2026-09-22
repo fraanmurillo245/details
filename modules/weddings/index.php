@@ -13,11 +13,11 @@ $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 ?>
 <div class="flex items-center justify-between mb-4">
-    <h1 class="text-lg font-semibold"><?= App::e(t('nav_weddings')) ?></h1>
-    <a href="<?= App::e(u('weddings', 'add')) ?>" class="btn"><?= App::e(t('add')) ?></a>
+    <h1 class="heading text-2xl"><?= App::e(t('nav_weddings')) ?></h1>
+    <a href="<?= App::e(u('weddings', 'add')) ?>" class="btn-brand"><?= App::e(t('add')) ?></a>
 </div>
 
-<div class="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-x-auto">
+<div class="card overflow-x-auto">
 <table class="w-full text-sm" id="tbl-weddings">
     <thead>
         <tr class="border-b border-gray-200 dark:border-gray-800 text-left">

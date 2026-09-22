@@ -1,6 +1,6 @@
 <?php
 return [
-    'app_name' => 'Invitaciones',
+    'app_name' => 'details',
     'nav_dashboard' => 'Panel',
     'nav_weddings' => 'Bodas',
     'nav_guests' => 'Invitados',
