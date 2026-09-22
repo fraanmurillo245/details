@@ -60,6 +60,8 @@ return [
     'rsvp_confirmed' => 'Confirmed',
     'rsvp_declined' => 'Declined',
 
+    'template' => 'Template',
+    'template_font_hint' => 'Typography and decorative details are set by the template chosen above.',
     'blocks' => 'Invitation blocks',
     'block_cover' => 'Cover',
     'block_countdown' => 'Countdown',

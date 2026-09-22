@@ -60,6 +60,8 @@ return [
     'rsvp_confirmed' => 'Confirmado',
     'rsvp_declined' => 'No asiste',
 
+    'template' => 'Plantilla',
+    'template_font_hint' => 'La tipografía y los detalles decorativos vienen dados por la plantilla elegida arriba.',
     'blocks' => 'Bloques de la invitación',
     'block_cover' => 'Portada',
     'block_countdown' => 'Cuenta atrás',

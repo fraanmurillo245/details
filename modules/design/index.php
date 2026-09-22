@@ -64,16 +64,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'font'            => in_array($_POST['font'] ?? '', ['serif', 'sans', 'script'], true) ? $_POST['font'] : 'serif',
     ];
     $giftMessage = mb_substr(trim((string)($_POST['gift_message'] ?? '')), 0, 1000);
+    $template = InviteTemplate::isValid($_POST['template'] ?? '') ? $_POST['template'] : 'classic';
+
     $stmt = $app->db->prepare('UPDATE wedding_pages SET blocks_json=?, theme_json=?, gift_message=?, updated_at=NOW() WHERE id_wedding=?');
     $blocksJson = json_encode($blocks);
     $themeJson = json_encode($newTheme);
     $stmt->bind_param('sssi', $blocksJson, $themeJson, $giftMessage, $idWedding);
     $stmt->execute();
     $stmt->close();
+
+    $stmt = $app->db->prepare('UPDATE weddings SET template=?, updated_at=NOW() WHERE id_wedding=?');
+    $stmt->bind_param('si', $template, $idWedding);
+    $stmt->execute();
+    $stmt->close();
+
     $app->log('design.update', $idWedding, $idAccount);
     $activeBlocks = $blocks;
     $theme = $newTheme;
     $page['gift_message'] = $giftMessage;
+    $wedding['template'] = $template;
 }
 ?>
 <h1 class="heading text-2xl mb-4"><?= App::e(t('nav_design')) ?> — <?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></h1>
@@ -113,6 +122,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <form method="post" class="max-w-2xl card p-6 space-y-6">
     <div>
+        <label class="block text-sm mb-2 font-medium"><?= App::e(t('template')) ?></label>
+        <div class="grid grid-cols-3 gap-3">
+        <?php foreach (InviteTemplate::all() as $key => $tpl): ?>
+            <label class="template-option cursor-pointer rounded-lg border-2 p-3 text-center text-sm transition-colors"
+                   style="border-color: <?= ($wedding['template'] ?? 'classic') === $key ? 'var(--brand-solid)' : '#e5e7eb' ?>"
+                   onclick="document.querySelectorAll('.template-option').forEach(el => el.style.borderColor = '#e5e7eb'); this.style.borderColor = 'var(--brand-solid)'">
+                <input type="radio" name="template" value="<?= App::e($key) ?>" class="hidden"
+                       <?= ($wedding['template'] ?? 'classic') === $key ? 'checked' : '' ?>>
+                <span class="flex justify-center gap-1 mb-2">
+                    <span class="inline-block h-4 w-4 rounded-full border" style="background: <?= App::e($tpl['swatch'][0]) ?>"></span>
+                    <span class="inline-block h-4 w-4 rounded-full border" style="background: <?= App::e($tpl['swatch'][1]) ?>"></span>
+                </span>
+                <?= App::e($tpl['label']) ?>
+            </label>
+        <?php endforeach; ?>
+        </div>
+    </div>
+    <div>
         <label class="block text-sm mb-2 font-medium"><?= App::e(t('blocks')) ?></label>
         <div class="space-y-2">
         <?php foreach ($availableBlocks as $key => $label): ?>
@@ -137,14 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="color" name="color_secondary" value="<?= App::e($theme['color_secondary'] ?? '#faf6f2') ?>" class="h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent">
         </div>
     </div>
-    <div>
-        <label class="block text-sm mb-1"><?= App::e(t('font')) ?></label>
-        <select name="font" class="field">
-            <?php foreach (['serif' => t('font_serif'), 'sans' => t('font_sans'), 'script' => t('font_script')] as $key => $label): ?>
-                <option value="<?= App::e($key) ?>" <?= ($theme['font'] ?? 'serif') === $key ? 'selected' : '' ?>><?= App::e($label) ?></option>
-            <?php endforeach; ?>
-        </select>
-    </div>
+    <input type="hidden" name="font" value="<?= App::e($theme['font'] ?? 'serif') ?>">
+    <p class="text-xs text-gray-400 -mt-2"><?= App::e(t('template_font_hint')) ?></p>
     <div class="flex items-center gap-3">
         <button type="submit" class="btn-brand"><?= App::e(t('save')) ?></button>
         <a href="<?= App::e($_config['url'] . '/invite/' . $wedding['slug'] . '/') ?>" target="_blank" class="btn"><?= App::e(t('preview')) ?></a>

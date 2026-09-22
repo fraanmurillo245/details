@@ -26,12 +26,21 @@ $theme = json_decode($wedding['theme_json'] ?? '{}', true) ?: [];
 $colorPrimary = $theme['color_primary'] ?? '#b76e79';
 $colorSecondary = $theme['color_secondary'] ?? '#faf6f2';
 
-$fontChoices = [
-    'serif'  => ['name' => "'Playfair Display', serif", 'heading' => "'Playfair Display', serif", 'body' => "'Cormorant Garamond', serif"],
-    'sans'   => ['name' => "'Poppins', sans-serif", 'heading' => "'Poppins', sans-serif", 'body' => "'Poppins', sans-serif"],
-    'script' => ['name' => "'Great Vibes', cursive", 'heading' => "'Playfair Display', serif", 'body' => "'Cormorant Garamond', serif"],
-];
-$fonts = $fontChoices[$theme['font'] ?? 'serif'] ?? $fontChoices['serif'];
+$tpl = InviteTemplate::get($wedding['template'] ?? 'classic');
+$fonts = ['name' => $tpl['font_name'], 'heading' => $tpl['font_heading'], 'body' => $tpl['font_body']];
+$heroLeft = $tpl['hero_align'] === 'left';
+
+function render_divider(array $tpl, bool $left = false): string
+{
+    $margin = $left ? '1.25rem 0' : '1.25rem auto';
+    if ($tpl['divider'] === 'square') {
+        return '<div style="width:9px;height:9px;margin:' . $margin . ';background:var(--color-primary);transform:rotate(45deg);"></div>';
+    }
+    if ($tpl['divider'] === 'leaf') {
+        return '<svg width="26" height="26" viewBox="0 0 24 24" style="margin:' . $margin . ';display:block;fill:var(--color-primary);opacity:.65"><path d="M12 2c-4.5 4-8 8.5-8 13a8 8 0 0016 0c0-4.5-3.5-9-8-13z"/></svg>';
+    }
+    return '<div class="divider" style="margin:' . $margin . '"></div>';
+}
 
 $stmt = $app->db->prepare('SELECT filename, original_name FROM wedding_photos WHERE id_wedding = ? ORDER BY sort_order ASC, id_photo ASC');
 $stmt->bind_param('i', $idWedding);
@@ -98,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
     body { background: var(--color-secondary); font-family: var(--font-body); color: #2a2422; }
     .heading { font-family: var(--font-heading); }
     .couple-name { font-family: var(--font-name); }
-    .eyebrow { font-family: var(--font-body); letter-spacing: 0.25em; text-transform: uppercase; font-size: 0.75rem; color: var(--color-primary); }
+    .eyebrow { font-family: var(--font-body); font-size: 0.75rem; color: var(--color-primary); <?= $tpl['eyebrow_css'] ?> }
     .divider { width: 48px; height: 2px; margin: 1.25rem auto; background: var(--color-primary); opacity: 0.55; }
     .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; }
     .hero-photo { background-size: cover; background-position: center; }
@@ -122,12 +131,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 <body>
 
 <?php if (in_array('cover', $blocks, true)): ?>
-<section class="hero <?= $coverPhoto ? 'hero-photo' : 'hero-plain' ?>" <?= $coverPhoto ? 'style="background-image:url(\'' . App::e($coverPhoto) . '\')"' : '' ?>>
+<section class="hero <?= $coverPhoto ? 'hero-photo' : 'hero-plain' ?>"
+          style="<?= $heroLeft ? 'justify-content:flex-start;' : '' ?><?= $coverPhoto ? "background-image:url('" . App::e($coverPhoto) . "')" : '' ?>">
     <?php if ($coverPhoto): ?><div class="hero-overlay"></div><?php endif; ?>
-    <div class="relative z-10 text-center px-6 <?= $coverPhoto ? 'text-white' : '' ?>">
+    <div class="relative z-10 <?= $heroLeft ? 'text-left px-10 sm:px-20 max-w-xl' : 'text-center px-6' ?> <?= $coverPhoto ? 'text-white' : '' ?>">
         <p class="eyebrow mb-4" style="<?= $coverPhoto ? 'color:white;opacity:.85' : '' ?>"><?= App::e(t('invite_tagline')) ?></p>
-        <h1 class="couple-name text-6xl sm:text-7xl leading-tight"><?= App::e($wedding['partner1_name']) ?> <span style="color: var(--color-primary)">&amp;</span> <?= App::e($wedding['partner2_name']) ?></h1>
-        <div class="divider"></div>
+        <h1 class="couple-name <?= $heroLeft ? 'text-5xl sm:text-6xl' : 'text-6xl sm:text-7xl' ?> leading-tight"><?= App::e($wedding['partner1_name']) ?> <span style="color: var(--color-primary)">&amp;</span> <?= App::e($wedding['partner2_name']) ?></h1>
+        <?= render_divider($tpl, $heroLeft) ?>
         <?php if ($wedding['event_date']): ?>
             <p class="heading text-xl tracking-wide"><?= App::e(date('d.m.Y', strtotime($wedding['event_date']))) ?></p>
         <?php endif; ?>
@@ -140,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 <?php if (in_array('countdown', $blocks, true) && $wedding['event_date']): ?>
 <section class="section" data-countdown="<?= App::e($wedding['event_date']) ?>">
     <p class="eyebrow"><?= App::e(t('countdown_label')) ?></p>
-    <div class="divider"></div>
+    <?= render_divider($tpl) ?>
     <div class="flex items-center justify-center gap-4 sm:gap-8">
         <div class="rounded-xl border px-6 py-4" style="border-color: color-mix(in srgb, var(--color-primary) 25%, transparent)">
             <div class="heading text-4xl" style="color: var(--color-primary)" id="cd-days">-</div>
@@ -161,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 <?php if (in_array('location', $blocks, true) && $wedding['venue_name']): ?>
 <section class="section">
     <p class="eyebrow"><?= App::e(t('block_location')) ?></p>
-    <div class="divider"></div>
+    <?= render_divider($tpl) ?>
     <h2 class="heading text-3xl mb-2"><?= App::e($wedding['venue_name']) ?></h2>
     <p class="opacity-75 mb-6"><?= App::e($wedding['venue_address']) ?></p>
     <?php if ($wedding['venue_address']): ?>
@@ -176,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 <?php if (in_array('gallery', $blocks, true) && $photos): ?>
 <section class="section" style="max-width: 880px">
     <p class="eyebrow"><?= App::e(t('block_gallery')) ?></p>
-    <div class="divider"></div>
+    <?= render_divider($tpl) ?>
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <?php foreach ($photos as $p): ?>
             <a href="<?= App::e(Photo::url($idWedding, $p['filename'])) ?>" target="_blank" rel="noopener" class="gallery-item block overflow-hidden rounded-lg">
@@ -190,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 <?php if (in_array('gift', $blocks, true) && !empty($wedding['gift_message'])): ?>
 <section class="section">
     <p class="eyebrow"><?= App::e(t('block_gift')) ?></p>
-    <div class="divider"></div>
+    <?= render_divider($tpl) ?>
     <p class="text-lg leading-relaxed opacity-90"><?= nl2br(App::e($wedding['gift_message'])) ?></p>
 </section>
 <?php endif; ?>
@@ -198,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 <?php if (in_array('rsvp', $blocks, true)): ?>
 <section class="section">
     <p class="eyebrow"><?= App::e(t('rsvp_title')) ?></p>
-    <div class="divider"></div>
+    <?= render_divider($tpl) ?>
 
     <?php if ($rsvpSent): ?>
         <p class="rounded-md bg-green-50 text-green-700 px-4 py-3"><?= App::e(t('rsvp_thanks')) ?></p>
