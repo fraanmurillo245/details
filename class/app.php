@@ -16,6 +16,14 @@ class App
         return htmlspecialchars((string)$text, ENT_QUOTES, 'UTF-8');
     }
 
+    /** Formatea céntimos como cantidad monetaria legible (490 -> "4,90 €"). */
+    public static function money(int $cents, string $currency = 'eur'): string
+    {
+        $amount = number_format($cents / 100, 2, ',', '.');
+        $symbol = ['eur' => '€', 'usd' => '$', 'gbp' => '£'][strtolower($currency)] ?? strtoupper($currency) . ' ';
+        return $amount . ' ' . $symbol;
+    }
+
     /** Devuelve JSON y termina la ejecución. */
     public static function json(array $data, int $code = 200): void
     {

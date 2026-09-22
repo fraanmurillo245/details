@@ -38,6 +38,9 @@ $nav = [
     'tables'    => ['label' => t('nav_tables'), 'icon' => 'grid'],
     'design'    => ['label' => t('nav_design'), 'icon' => 'palette'],
 ];
+if (!empty($_user['is_admin'])) {
+    $nav['admin'] = ['label' => t('nav_admin'), 'icon' => 'shield'];
+}
 ?>
 <!doctype html>
 <html lang="<?= App::e($_lang) ?>">
