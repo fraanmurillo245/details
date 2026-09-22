@@ -21,7 +21,7 @@ if (!$page) {
     $stmt->bind_param('i', $idWedding);
     $stmt->execute();
     $stmt->close();
-    $page = ['blocks_json' => '[]', 'theme_json' => '{}'];
+    $page = ['blocks_json' => '[]', 'theme_json' => '{}', 'gift_message' => ''];
 }
 
 $availableBlocks = [
@@ -59,19 +59,21 @@ $stmt->close();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $blocks = array_values(array_intersect(array_map('strval', $_POST['blocks'] ?? []), array_keys($availableBlocks)));
     $newTheme = [
-        'color_primary'   => preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color_primary'] ?? '') ? $_POST['color_primary'] : '#4f46e5',
-        'color_secondary' => preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color_secondary'] ?? '') ? $_POST['color_secondary'] : '#f5f5f4',
+        'color_primary'   => preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color_primary'] ?? '') ? $_POST['color_primary'] : '#b76e79',
+        'color_secondary' => preg_match('/^#[0-9a-fA-F]{6}$/', $_POST['color_secondary'] ?? '') ? $_POST['color_secondary'] : '#faf6f2',
         'font'            => in_array($_POST['font'] ?? '', ['serif', 'sans', 'script'], true) ? $_POST['font'] : 'serif',
     ];
-    $stmt = $app->db->prepare('UPDATE wedding_pages SET blocks_json=?, theme_json=?, updated_at=NOW() WHERE id_wedding=?');
+    $giftMessage = mb_substr(trim((string)($_POST['gift_message'] ?? '')), 0, 1000);
+    $stmt = $app->db->prepare('UPDATE wedding_pages SET blocks_json=?, theme_json=?, gift_message=?, updated_at=NOW() WHERE id_wedding=?');
     $blocksJson = json_encode($blocks);
     $themeJson = json_encode($newTheme);
-    $stmt->bind_param('ssi', $blocksJson, $themeJson, $idWedding);
+    $stmt->bind_param('sssi', $blocksJson, $themeJson, $giftMessage, $idWedding);
     $stmt->execute();
     $stmt->close();
     $app->log('design.update', $idWedding, $idAccount);
     $activeBlocks = $blocks;
     $theme = $newTheme;
+    $page['gift_message'] = $giftMessage;
 }
 ?>
 <h1 class="text-lg font-semibold mb-4"><?= App::e(t('nav_design')) ?> — <?= App::e($wedding['partner1_name'] . ' & ' . $wedding['partner2_name']) ?></h1>
@@ -121,14 +123,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endforeach; ?>
         </div>
     </div>
+    <div>
+        <label class="block text-sm mb-1"><?= App::e(t('gift_message')) ?></label>
+        <textarea name="gift_message" rows="3" placeholder="<?= App::e(t('gift_message_hint')) ?>" class="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent px-3 py-2 text-sm"><?= App::e($page['gift_message'] ?? '') ?></textarea>
+    </div>
     <div class="grid grid-cols-2 gap-4">
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('color_primary')) ?></label>
-            <input type="color" name="color_primary" value="<?= App::e($theme['color_primary'] ?? '#4f46e5') ?>" class="h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent">
+            <input type="color" name="color_primary" value="<?= App::e($theme['color_primary'] ?? '#b76e79') ?>" class="h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent">
         </div>
         <div>
             <label class="block text-sm mb-1"><?= App::e(t('color_secondary')) ?></label>
-            <input type="color" name="color_secondary" value="<?= App::e($theme['color_secondary'] ?? '#f5f5f4') ?>" class="h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent">
+            <input type="color" name="color_secondary" value="<?= App::e($theme['color_secondary'] ?? '#faf6f2') ?>" class="h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-transparent">
         </div>
     </div>
     <div>

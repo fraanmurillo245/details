@@ -51,6 +51,8 @@ return [
     'block_gallery' => 'Galería',
     'block_gift' => 'Lista de regalos',
     'block_rsvp' => 'Confirmación de asistencia',
+    'gift_message' => 'Mensaje de regalo',
+    'gift_message_hint' => 'Ej: cuenta bancaria, enlace a lista de bodas, o simplemente "vuestra presencia es el mejor regalo"...',
     'color_primary' => 'Color principal',
     'color_secondary' => 'Color secundario',
     'font' => 'Tipografía',
@@ -77,6 +79,9 @@ return [
     'err_no_suggestion' => 'Genera primero una sugerencia antes de aplicarla.',
     'err_not_found' => 'No encontrado.',
 
+    'invite_tagline' => '¡Nos casamos!',
+    'invite_subtitle' => 'Os invitamos a celebrarlo con nosotros',
+    'directions' => 'Cómo llegar',
     'countdown_label' => 'Faltan',
     'rsvp_title' => 'Confirma tu asistencia',
     'rsvp_thanks' => '¡Gracias! Hemos recibido tu confirmación.',

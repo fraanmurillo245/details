@@ -67,19 +67,25 @@ function toggleTheme() {
     document.cookie = 'theme=' + (dark ? 'dark' : 'light') + ';path=/;max-age=31536000';
 }
 
-// Cuenta atrás de la invitación pública (bloque "countdown").
+// Cuenta atrás de la invitación pública (bloque "countdown"): tres cajas
+// (días/horas/minutos) si existen, o un único texto de respaldo.
 document.addEventListener('DOMContentLoaded', () => {
     const el = document.querySelector('[data-countdown]');
     if (!el) return;
     const target = new Date(el.dataset.countdown.replace(' ', 'T')).getTime();
+    const daysEl = document.getElementById('cd-days');
+    const hoursEl = document.getElementById('cd-hours');
+    const minsEl = document.getElementById('cd-minutes');
     const box = document.getElementById('countdown-box');
     function tick() {
         const diff = target - Date.now();
-        if (diff <= 0) { box.textContent = '¡Hoy!'; return; }
-        const d = Math.floor(diff / 86400000);
-        const h = Math.floor((diff % 86400000) / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        box.textContent = d + 'd ' + h + 'h ' + m + 'm';
+        const d = Math.max(0, Math.floor(diff / 86400000));
+        const h = Math.max(0, Math.floor((diff % 86400000) / 3600000));
+        const m = Math.max(0, Math.floor((diff % 3600000) / 60000));
+        if (daysEl) daysEl.textContent = d;
+        if (hoursEl) hoursEl.textContent = h;
+        if (minsEl) minsEl.textContent = m;
+        if (box) box.textContent = diff <= 0 ? '¡Hoy!' : (d + 'd ' + h + 'h ' + m + 'm');
     }
     tick();
     setInterval(tick, 60000);

@@ -140,8 +140,8 @@ TXT;
         if (!in_array('cover', $blocks, true)) array_unshift($blocks, 'cover');
 
         $theme = is_array($json['theme'] ?? null) ? $json['theme'] : [];
-        $colorPrimary = preg_match('/^#[0-9a-fA-F]{6}$/', $theme['color_primary'] ?? '') ? $theme['color_primary'] : '#4f46e5';
-        $colorSecondary = preg_match('/^#[0-9a-fA-F]{6}$/', $theme['color_secondary'] ?? '') ? $theme['color_secondary'] : '#f5f5f4';
+        $colorPrimary = preg_match('/^#[0-9a-fA-F]{6}$/', $theme['color_primary'] ?? '') ? $theme['color_primary'] : '#b76e79';
+        $colorSecondary = preg_match('/^#[0-9a-fA-F]{6}$/', $theme['color_secondary'] ?? '') ? $theme['color_secondary'] : '#faf6f2';
         $font = in_array($theme['font'] ?? '', self::ALLOWED_FONTS, true) ? $theme['font'] : 'serif';
 
         return [

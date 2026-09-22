@@ -51,6 +51,8 @@ return [
     'block_gallery' => 'Gallery',
     'block_gift' => 'Gift list',
     'block_rsvp' => 'RSVP',
+    'gift_message' => 'Gift message',
+    'gift_message_hint' => 'E.g. bank account, gift registry link, or simply "your presence is the best gift"...',
     'color_primary' => 'Primary color',
     'color_secondary' => 'Secondary color',
     'font' => 'Font',
@@ -77,6 +79,9 @@ return [
     'err_no_suggestion' => 'Generate a suggestion first before applying it.',
     'err_not_found' => 'Not found.',
 
+    'invite_tagline' => "We're getting married!",
+    'invite_subtitle' => 'Join us to celebrate together',
+    'directions' => 'Get directions',
     'countdown_label' => 'Time left',
     'rsvp_title' => 'RSVP',
     'rsvp_thanks' => 'Thank you! Your RSVP has been received.',
