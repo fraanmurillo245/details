@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // El alta es siempre gratuita: la tarifa plana se cobra al publicar
             // la invitación (ver modules/weddings/publish.php), no aquí.
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $result = Onboarding::provision($app, $p1, $p2, $email, $hash, $slug);
+            $result = Onboarding::provision($app, $p1, $p2, $email, $hash, $slug, $_lang);
             Notifications::welcome($email, $p1 . ' & ' . $p2);
             $app->loginAs($result['id_user']);
             $app->redirect(u('dashboard'));

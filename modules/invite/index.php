@@ -43,6 +43,21 @@ function invite_owner_is_viewing(int $idAccount, string $secret, mysqli $db): bo
 }
 
 $idWedding = (int)$wedding['id_wedding'];
+
+// Idioma de la invitación: restringido a los idiomas contratados para esta
+// boda (WeddingLanguages), nunca al cookie/idioma global del panel (evita
+// que la sesión del propio dueño se filtre en su previsualización).
+$availableLangCodes = WeddingLanguages::contractedCodes($app, $idWedding);
+$includedLang = 'es';
+foreach (WeddingLanguages::contracted($app, $idWedding) as $wl) {
+    if ($wl['is_included']) { $includedLang = $wl['language']; break; }
+}
+if (!$availableLangCodes) $availableLangCodes = [$includedLang]; // salvaguarda para bodas antiguas sin fila todavía
+$requestedLang = (string)($_GET['lang'] ?? '');
+$_lang = in_array($requestedLang, $availableLangCodes, true) ? $requestedLang : $includedLang;
+$_langFile = __DIR__ . '/../../lang/' . $_lang . '.php';
+$_strings = is_file($_langFile) ? include $_langFile : [];
+
 $blocks = json_decode($wedding['blocks_json'] ?? '[]', true) ?: [];
 $theme = json_decode($wedding['theme_json'] ?? '{}', true) ?: [];
 $colorPrimary = $theme['color_primary'] ?? '#b76e79';
@@ -118,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 }
 ?>
 <!doctype html>
-<html lang="es">
+<html lang="<?= App::e($_lang) ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -161,6 +176,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
 </head>
 <body>
 
+<?php if (count($availableLangCodes) > 1): ?>
+<div style="position:fixed;top:14px;right:14px;z-index:60;background:rgba(255,255,255,.9);backdrop-filter:blur(4px);border-radius:999px;padding:4px 6px;box-shadow:0 1px 6px rgba(0,0,0,.12);">
+    <?= App::langSwitcher($availableLangCodes, true) ?>
+</div>
+<?php endif; ?>
+
 <?php if ($isPreview): ?>
 <div style="position:sticky;top:0;z-index:50;background:#1f2937;color:#fff;text-align:center;padding:8px 16px;font-size:13px;">
     <?= App::e(t('invite_preview_banner')) ?> — <a href="<?= App::e(u('weddings')) ?>" style="color:#a5b4fc;text-decoration:underline;"><?= App::e(t('invite_preview_publish_link')) ?></a>
@@ -191,15 +212,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['rsvp_name'])) {
     <div class="flex items-center justify-center gap-4 sm:gap-8">
         <div class="rounded-xl border px-6 py-4" style="border-color: color-mix(in srgb, var(--color-primary) 25%, transparent)">
             <div class="heading text-4xl" style="color: var(--color-primary)" id="cd-days">-</div>
-            <div class="text-xs uppercase tracking-widest opacity-60 mt-1">Días</div>
+            <div class="text-xs uppercase tracking-widest opacity-60 mt-1"><?= App::e(t('countdown_days')) ?></div>
         </div>
         <div class="rounded-xl border px-6 py-4" style="border-color: color-mix(in srgb, var(--color-primary) 25%, transparent)">
             <div class="heading text-4xl" style="color: var(--color-primary)" id="cd-hours">-</div>
-            <div class="text-xs uppercase tracking-widest opacity-60 mt-1">Horas</div>
+            <div class="text-xs uppercase tracking-widest opacity-60 mt-1"><?= App::e(t('countdown_hours')) ?></div>
         </div>
         <div class="rounded-xl border px-6 py-4" style="border-color: color-mix(in srgb, var(--color-primary) 25%, transparent)">
             <div class="heading text-4xl" style="color: var(--color-primary)" id="cd-minutes">-</div>
-            <div class="text-xs uppercase tracking-widest opacity-60 mt-1">Minutos</div>
+            <div class="text-xs uppercase tracking-widest opacity-60 mt-1"><?= App::e(t('countdown_minutes')) ?></div>
         </div>
     </div>
 </section>

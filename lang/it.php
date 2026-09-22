@@ -178,4 +178,24 @@ return [
     'rsvp_submit' => 'Invia conferma',
     'yes' => 'Sì',
     'no' => 'No',
+
+    'countdown_days' => 'Giorni',
+    'countdown_hours' => 'Ore',
+    'countdown_minutes' => 'Minuti',
+
+    'languages_title' => 'Lingue dell\'invito',
+    'languages_hint' => 'La lingua in cui hai creato l\'invito è inclusa gratuitamente. Puoi aggiungere altre lingue per far scegliere ai tuoi invitati come leggerlo, a %s ciascuna.',
+    'languages_included' => 'Inclusa',
+    'languages_purchased' => 'Acquistata',
+    'languages_buy' => 'Aggiungi per %s',
+    'languages_added_flash' => 'Lingua aggiunta! Ora è disponibile sull\'invito pubblico.',
+    'languages_purchase_error' => 'Non è stato possibile avviare il pagamento. Riprova tra qualche minuto.',
+    'languages_purchase_pending' => 'Il pagamento non è andato a buon fine. Se hai chiuso la finestra di pagamento, riprova.',
+    'lang_es' => 'Spagnolo',
+    'lang_en' => 'Inglese',
+    'lang_fr' => 'Francese',
+    'lang_it' => 'Italiano',
+
+    'admin_extra_language_fee' => 'Prezzo per lingua extra',
+    'admin_extra_language_hint' => 'Questo è l\'importo addebitato ogni volta che una coppia aggiunge una lingua extra al proprio invito (oltre a quella inclusa). Le modifiche riguardano solo gli acquisti futuri.',
 ];

@@ -78,17 +78,30 @@ class App
         setcookie('flash_type', $type, ['expires' => time() + 30, 'path' => '/', 'samesite' => 'Lax']);
     }
 
-    /** Selector de idioma (ES/EN/FR/IT), enlaces por GET a setlang.php que vuelven a la página actual. Válido logueado o no. */
-    public static function langSwitcher(): string
+    /**
+     * Selector de idioma (ES/EN/FR/IT). Por defecto enlaza por GET a setlang.php
+     * (fija la cookie global, válido logueado o no: panel, login, alta...).
+     * Con $allowedCodes se restringe a una lista (invitación pública, limitada a
+     * los idiomas contratados) y $viaQuery cambia a enlaces ?lang=xx sobre la
+     * página actual, sin tocar la cookie global (no debe pisar el idioma del
+     * panel si quien mira es el propio dueño previsualizando su invitación).
+     */
+    public static function langSwitcher(?array $allowedCodes = null, bool $viaQuery = false): string
     {
         $current = $GLOBALS['_lang'] ?? 'es';
         $labels = ['es' => 'ES', 'en' => 'EN', 'fr' => 'FR', 'it' => 'IT'];
-        $redirect = urlencode($_SERVER['REQUEST_URI'] ?? '/');
+        if ($allowedCodes !== null) {
+            $labels = array_intersect_key($labels, array_flip($allowedCodes));
+        }
         $html = '<div class="flex items-center gap-1 text-xs font-medium">';
         foreach ($labels as $code => $label) {
             if ($code === $current) {
                 $html .= '<span class="px-1.5 py-0.5 rounded text-gray-400 dark:text-gray-500">' . $label . '</span>';
+            } elseif ($viaQuery) {
+                $path = strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
+                $html .= '<a href="' . self::e($path) . '?lang=' . $code . '" class="px-1.5 py-0.5 rounded hover:bg-black/5 text-gray-500">' . $label . '</a>';
             } else {
+                $redirect = urlencode($_SERVER['REQUEST_URI'] ?? '/');
                 $html .= '<a href="/setlang.php?lang=' . $code . '&amp;redirect=' . $redirect . '" class="px-1.5 py-0.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">' . $label . '</a>';
             }
         }

@@ -34,4 +34,15 @@ class Settings
     {
         return self::get($app, 'flat_fee_currency', 'eur');
     }
+
+    /** Precio de un idioma extra para la invitación pública (ver class/weddinglanguages.php). */
+    public static function extraLanguageCents(App $app): int
+    {
+        return (int)self::get($app, 'extra_language_cents', '2500');
+    }
+
+    public static function extraLanguageCurrency(App $app): string
+    {
+        return self::get($app, 'extra_language_currency', 'eur');
+    }
 }

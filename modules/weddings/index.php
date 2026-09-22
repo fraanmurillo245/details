@@ -54,6 +54,7 @@ $needsPayment = Billing::isConfigured() && !Billing::hasPaid($app, $idAccount);
                         <?= App::e($needsPayment ? t('pay_and_publish') : t('publish')) ?>
                     </a>
                 <?php endif; ?>
+                <a href="<?= App::e(u('weddings', 'languages', $r['id_wedding'])) ?>" class="btn" data-tip="<?= App::e(t('languages_title')) ?>">🌐</a>
                 <a href="<?= App::e(u('weddings', 'add', $r['id_wedding'])) ?>" class="btn" data-tip="<?= App::e(t('edit')) ?>">✎</a>
                 <button type="button" class="btn" data-tip="<?= App::e(t('delete')) ?>"
                         onclick="confirmDelete('weddings', <?= (int)$r['id_wedding'] ?>, '<?= App::e(t('confirm_delete')) ?>')">🗑</button>

@@ -10,3 +10,16 @@ CREATE TABLE IF NOT EXISTS payments (
     UNIQUE KEY uq_session (stripe_session_id),
     KEY idx_account (id_account)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Migración: distingue la tarifa plana de los idiomas extra comprados
+-- (ver class/weddinglanguages.php). ref_id = id_wedding para 'language';
+-- sin uso (0) para 'flat_fee', que ya identifica la cuenta con id_account.
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'payments' AND COLUMN_NAME = 'kind');
+SET @s := IF(@c = 0, "ALTER TABLE payments ADD COLUMN kind VARCHAR(20) NOT NULL DEFAULT 'flat_fee' AFTER id_account", 'DO 0');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;
+
+SET @c := (SELECT COUNT(*) FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'payments' AND COLUMN_NAME = 'ref_id');
+SET @s := IF(@c = 0, 'ALTER TABLE payments ADD COLUMN ref_id INT UNSIGNED NOT NULL DEFAULT 0 AFTER kind', 'DO 0');
+PREPARE p FROM @s; EXECUTE p; DEALLOCATE PREPARE p;

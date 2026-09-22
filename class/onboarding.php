@@ -4,8 +4,10 @@ if (!defined('IN_APP')) { die('Acceso denegado'); }
 /** Crea cuenta + usuario propietario + boda inicial (con página de diseño vacía). */
 class Onboarding
 {
-    public static function provision(App $app, string $p1, string $p2, string $email, string $passwordHash, string $slug): array
+    public static function provision(App $app, string $p1, string $p2, string $email, string $passwordHash, string $slug, string $language = 'es'): array
     {
+        if (!in_array($language, WeddingLanguages::ALL, true)) $language = 'es';
+
         $name = trim($p1 . ' & ' . $p2);
         $stmt = $app->db->prepare(
             'INSERT INTO accounts (name, email, plan, plan_expires_at, active, created_at, updated_at)
@@ -17,10 +19,10 @@ class Onboarding
         $stmt->close();
 
         $stmt = $app->db->prepare(
-            'INSERT INTO users (id_account, email, password, rol, active, created_at, updated_at)
-             VALUES (?, ?, ?, "owner", 1, NOW(), NOW())'
+            'INSERT INTO users (id_account, email, password, rol, active, language, created_at, updated_at)
+             VALUES (?, ?, ?, "owner", 1, ?, NOW(), NOW())'
         );
-        $stmt->bind_param('iss', $idAccount, $email, $passwordHash);
+        $stmt->bind_param('isss', $idAccount, $email, $passwordHash, $language);
         $stmt->execute();
         $idUser = (int)$stmt->insert_id;
         $stmt->close();
@@ -42,6 +44,8 @@ class Onboarding
         $stmt->bind_param('iss', $idWedding, $blocks, $theme);
         $stmt->execute();
         $stmt->close();
+
+        WeddingLanguages::ensureIncluded($app, $idWedding, $language);
 
         return ['id_account' => $idAccount, 'id_user' => $idUser, 'id_wedding' => $idWedding];
     }

@@ -30,15 +30,32 @@ class Billing
     /** Crea una Checkout Session de pago único (precio ad-hoc) y devuelve el array decodificado de Stripe (incluye 'url'). */
     public static function createCheckoutSession(App $app, string $successUrl, string $cancelUrl, string $customerEmail, array $metadata): array
     {
+        return self::checkout(
+            $successUrl, $cancelUrl, $customerEmail, $metadata,
+            Settings::flatFeeCents($app), Settings::flatFeeCurrency($app), 'Invitación de boda — tarifa plana'
+        );
+    }
+
+    /** Igual que createCheckoutSession pero con el precio del idioma extra (Settings::extraLanguage*). */
+    public static function createLanguageCheckoutSession(App $app, string $successUrl, string $cancelUrl, string $customerEmail, array $metadata): array
+    {
+        return self::checkout(
+            $successUrl, $cancelUrl, $customerEmail, $metadata,
+            Settings::extraLanguageCents($app), Settings::extraLanguageCurrency($app), 'Invitación de boda — idioma adicional'
+        );
+    }
+
+    private static function checkout(string $successUrl, string $cancelUrl, string $customerEmail, array $metadata, int $amountCents, string $currency, string $productName): array
+    {
         $fields = [
             'mode' => 'payment',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'customer_email' => $customerEmail,
             'line_items[0][quantity]' => 1,
-            'line_items[0][price_data][currency]' => Settings::flatFeeCurrency($app),
-            'line_items[0][price_data][unit_amount]' => Settings::flatFeeCents($app),
-            'line_items[0][price_data][product_data][name]' => 'Invitación de boda — tarifa plana',
+            'line_items[0][price_data][currency]' => $currency,
+            'line_items[0][price_data][unit_amount]' => $amountCents,
+            'line_items[0][price_data][product_data][name]' => $productName,
         ];
         foreach ($metadata as $k => $v) {
             $fields['metadata[' . $k . ']'] = $v;

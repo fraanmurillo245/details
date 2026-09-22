@@ -178,4 +178,24 @@ return [
     'rsvp_submit' => 'Envoyer ma réponse',
     'yes' => 'Oui',
     'no' => 'Non',
+
+    'countdown_days' => 'Jours',
+    'countdown_hours' => 'Heures',
+    'countdown_minutes' => 'Minutes',
+
+    'languages_title' => 'Langues du faire-part',
+    'languages_hint' => 'La langue dans laquelle vous avez créé le faire-part est incluse. Vous pouvez ajouter des langues supplémentaires pour que vos invités choisissent leur langue de lecture, pour %s chacune.',
+    'languages_included' => 'Incluse',
+    'languages_purchased' => 'Achetée',
+    'languages_buy' => 'Ajouter pour %s',
+    'languages_added_flash' => 'Langue ajoutée ! Elle est maintenant disponible sur le faire-part public.',
+    'languages_purchase_error' => 'Le paiement n\'a pas pu démarrer. Réessayez dans quelques minutes.',
+    'languages_purchase_pending' => 'Le paiement n\'a pas abouti. Si vous avez fermé la fenêtre de paiement, réessayez.',
+    'lang_es' => 'Espagnol',
+    'lang_en' => 'Anglais',
+    'lang_fr' => 'Français',
+    'lang_it' => 'Italien',
+
+    'admin_extra_language_fee' => 'Prix par langue supplémentaire',
+    'admin_extra_language_hint' => 'C\'est le montant facturé à chaque fois qu\'un couple ajoute une langue supplémentaire à son faire-part (en plus de celle incluse). Les changements n\'affectent que les achats futurs.',
 ];

@@ -52,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param('iss', $id, $emptyBlocks, $emptyTheme);
         $stmt->execute();
         $stmt->close();
+        WeddingLanguages::ensureIncluded($app, $id, $_lang);
         $app->log('wedding.create', $id, $idAccount);
     }
     $app->redirect(u('weddings'));

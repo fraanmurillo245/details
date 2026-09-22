@@ -9,4 +9,6 @@ CREATE TABLE IF NOT EXISTS settings (
 
 INSERT IGNORE INTO settings (setting_key, setting_value, updated_at) VALUES
     ('flat_fee_cents', '4900', NOW()),
-    ('flat_fee_currency', 'eur', NOW());
+    ('flat_fee_currency', 'eur', NOW()),
+    ('extra_language_cents', '2500', NOW()),
+    ('extra_language_currency', 'eur', NOW());
